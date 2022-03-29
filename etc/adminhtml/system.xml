@@ -24,7 +24,7 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field id="mode" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Sandbox mode</label>
+                    <label>Enviroment</label>
                     <source_model>DUna\Payments\Model\Config\Source\Sandobox</source_model>
                 </field>
                 <field id="private_key_stage" translate="label comment" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
