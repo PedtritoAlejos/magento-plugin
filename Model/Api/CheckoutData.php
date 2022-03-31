@@ -12,32 +12,32 @@ class CheckoutData extends \Magento\Framework\Model\AbstractExtensibleModel impl
     const KEY_STORE_ID ='store_id';
     const KEY_CART_ID ='cart_id';
     const KEY_COUPON_CODE ='coupon_code';
-    const KEY_USER_ID ='user_id';
+    const KEY_USER_TOKEN ='user_token';
 
     /**
-     * getUserId
+     * getUserToken
      *
      * @return string $this this
      */
-    public function getUserId()
+    public function getUserToken()
     {
-        return $this->getData(self::KEY_USER_ID);
+        return $this->getData(self::KEY_USER_TOKEN);
     }
 
     /**
-     * Set password
+     * Set user_token
      *
-     * @param string $user_id user_id
+     * @param string $user_token user_token
      *
      * @return string $this this
      */
-    public function setUserId($user_id)
+    public function setUserToken($user_token)
     {
-        return $this->setData(self::KEY_USER_ID, $user_id);
+        return $this->setData(self::KEY_USER_TOKEN, $user_token);
     }
 
     /**
-     * getBillingaddress
+     * getStoreId
      *
      * @return string $this this
      */
@@ -59,7 +59,7 @@ class CheckoutData extends \Magento\Framework\Model\AbstractExtensibleModel impl
     }
 
     /**
-     * getBillingaddress
+     * getCartId
      *
      * @return string $this this
      */

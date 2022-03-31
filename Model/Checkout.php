@@ -20,13 +20,16 @@ class Checkout
 
     protected $quoteFactory;
 
+    protected $_tokenFactory;
+
     public function __construct(
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Framework\ObjectManagerInterface $objectInterface,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Checkout\Model\Cart $cart,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        \Magento\Integration\Model\Oauth\TokenFactory $tokenFactory
     ) {
         $this->quoteFactory = $quoteFactory;
         $this->objectManager = $objectInterface;
@@ -34,6 +37,7 @@ class Checkout
         $this->storeManager       = $storeManager;
         $this->quoteRepository    = $quoteRepository;
         $this->cart               =$cart;
+        $this->_tokenFactory = $tokenFactory;
     }
 
     /**
@@ -45,7 +49,22 @@ class Checkout
      */
     function _getQuotemobi($data)
     {
-        $customer_id = isset($data['user_id'])?$data['user_id']:'0';
+        $token = isset($data['user_token'])?$data['user_token']:'0';
+        $tokenObj = $this->_tokenFactory->create()->load($token, 'token');
+        $customer_id = null;
+        if (!$tokenObj->getId()) {
+            throw new \Magento\Framework\Oauth\Exception(
+                __('Specified token does not exist')
+            );
+        } else {
+           $customer_id = $tokenObj->getCustomerId();
+            if (!$customer_id) {
+                throw new \Magento\Framework\Oauth\Exception(
+                    __('Specified token customer does not exist')
+                );
+            }
+        }
+        $customer_id = isset($customer_id)?$customer_id:'0';
         $quote = null;
 
         if ($customer_id) {

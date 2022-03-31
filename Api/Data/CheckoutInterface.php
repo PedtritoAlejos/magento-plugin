@@ -6,20 +6,20 @@ interface CheckoutInterface extends \Magento\Framework\Api\ExtensibleDataInterfa
 {
 
     /**
-     * Set user_id
+     * Set user_token
      *
-     * @param int $user_id user_id
+     * @param string $user_token user_token
      *
-     * @return int
+     * @return string
      */
-    public function setUserId($user_id);
+    public function setUserToken($user_token);
 
     /**
-     * Get UserId
+     * Get UserToken
      *
-     * @return int|null
+     * @return string|null
      */
-    public function getUserId();
+    public function getUserToken();
 
     /**
      * Set setCartId
