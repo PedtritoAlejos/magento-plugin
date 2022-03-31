@@ -4,7 +4,7 @@
         <duna>
             <config>
                 <enable>1</enable>
-                <checkout>0</checkout>
+                <mode>1</mode>
             </config>
         </duna>
     </default>
