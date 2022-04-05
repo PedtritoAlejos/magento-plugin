@@ -1,0 +1,32 @@
+<?php
+use Magento\Framework\Escaper;
+
+/**
+ * @var $block \DUna\Payments\Block\Checkout
+ * @var Escaper $escaper
+ */
+
+$env = $block->getEnv();
+$apiKey = $block->getApiKey();
+$btnLabel = $escaper->escapeHtml(__('Proceed to Checkout'));
+?>
+
+<div id="duna-checkout" data-bind="scope:'duna'">
+    <!-- ko template: getTemplate() --><!-- /ko -->
+    <script type="text/x-magento-init">
+    {
+        "#duna-checkout": {
+            "Magento_Ui/js/core/app": {
+               "components": {
+                    "duna": {
+                        "component": "DUna_Payments/js/checkout-widget",
+                        "env": "<?= $env ?>",
+                        "apiKey": "<?= $apiKey ?>",
+                        "btnLabel": "<?= $btnLabel ?>"
+                    }
+                }
+            }
+        }
+    }
+    </script>
+</div>
