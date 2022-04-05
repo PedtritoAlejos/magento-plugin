@@ -11,6 +11,8 @@ class Data extends AbstractHelper
      * constant
      */
     const XML_PATH_HELLOWORLD = 'duna/';
+    const MODE_PRODUCTION = 2;
+    const MODE_STAGING = 1;
 
     /**
      * @param $field
@@ -34,4 +36,18 @@ class Data extends AbstractHelper
         return $this->getConfigValue(self::XML_PATH_HELLOWORLD .'config/'. $code, $storeId);
     }
 
+    /**
+     * @return string
+     */
+    public function getEnv(): string
+    {
+        $mode = $this->getGeneralConfig('mode');
+        if ($mode == self::MODE_PRODUCTION) {
+            $env = 'production';
+        }
+        if ($mode == self::MODE_STAGING) {
+            $env = 'staging';
+        }
+        return $env;
+    }
 }

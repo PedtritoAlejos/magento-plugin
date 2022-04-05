@@ -3,4 +3,5 @@
     <type name="Magento\Checkout\Controller\Index\Index">
         <plugin name="hideCheckout" type="DUna\Payments\Plugin\Checkout\Index" disabled="false"/>
     </type>
+    <preference for="DUna\Payments\Api\PostManagementInterface" type="DUna\Payments\Model\PostManagement"/>
 </config>
