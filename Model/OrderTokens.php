@@ -191,7 +191,7 @@ class OrderTokens
     {
         $currencyCode = $quote->getCurrency()->getQuoteCurrencyCode();
         $currencySymbol = $this->priceCurrency->getCurrencySymbol();
-        $items = $quote->getAllVisibleItems();
+        $items = $quote->getItemsCollection();
         $itemsList = [];
         foreach ($items as $item) {
             $itemsList[] = [
