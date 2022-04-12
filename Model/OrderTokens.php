@@ -155,12 +155,13 @@ class OrderTokens
     private function getBody(): string
     {
         $quote = $this->checkoutSession->getQuote();
-        $totals = number_format($quote->getGrandTotal(), 2, '.', '');
+        $totals = $this->priceFormat($quote->getGrandTotal());
+        $domain = $this->storeManager->getStore()->getBaseUrl();
         $body = [
             'order' => [
                 'order_id' => $quote->getId(),
                 'currency' => $quote->getCurrency()->getQuoteCurrencyCode(),
-                'tax_amount' => number_format($quote->getCustomerTaxvat(), 2, '.', ''),
+                'tax_amount' => $this->priceFormat($quote->getCustomerTaxvat()),
                 'items_total_amount' => $totals,
                 'sub_total' => $totals,
                 'total_amount' => $totals,
@@ -169,11 +170,17 @@ class OrderTokens
                 'discounts' => [],
                 'shipping_options' => [
                     'type' => 'pickup'
+                ],
+                'webhook_urls' => [
+                    'notify_order' => $domain . 'api/v1/orders/notify',
+                    'apply_coupon' => $domain . 'api/v1/orders/{order_token}/coupons',
+                    'remove_coupon' => $domain . 'api/v1/orders/{order_token}/coupons/{coupon_code}',
+                    'get_shipping_options' => $domain . 'api/v1/orders/{order_token}/shipping-methods',
+                    'update_shipping_options' => $domain . 'api/v1/orders/{order_token}/shipping-methods/{code}'
                 ]
             ]
         ];
-        $body = $this->json->serialize($body);
-        return $body;
+        return $this->json->serialize($body);
     }
 
     /**
@@ -184,36 +191,36 @@ class OrderTokens
     {
         $currencyCode = $quote->getCurrency()->getQuoteCurrencyCode();
         $currencySymbol = $this->priceCurrency->getCurrencySymbol();
-        $items = $quote->getAllItems();
+        $items = $quote->getAllVisibleItems();
         $itemsList = [];
         foreach ($items as $item) {
             $itemsList[] = [
                 'id' => $item->getProductId(),
                 'name' => $item->getName(),
                 'description' => $item->getDescription(),
-                'options' => '', # Confirmar con DUna
+                'options' => '',
                 'total_amount' => [
-                    'amount' => number_format($item->getRowTotal(), 2, '.', ''),
+                    'amount' => $this->priceFormat($item->getRowTotal()),
                     'currency' => $currencyCode,
                     'currency_symbol' => $currencySymbol
                 ],
                 'unit_price' => [
-                    'amount' => number_format($item->getPrice(), 2, '.', ''),
+                    'amount' => $this->priceFormat($item->getPrice()),
                     'currency' => $currencyCode,
                     'currency_symbol' => $currencySymbol
                 ],
                 'tax_amount' => [
-                    'amount' => number_format($item->getTaxAmount(), 2, '.', ''),
+                    'amount' => $this->priceFormat($item->getTaxAmount()),
                     'currency' => $currencyCode,
                     'currency_symbol' => $currencySymbol
                 ],
                 'quantity' => (int) $item->getQty(),
-                'uom' => '', # Confirmar con DUna
-                'upc' => '', # Confirmar con DUna
+                'uom' => '',
+                'upc' => '',
                 'sku' => $item->getSku(),
-                'isbn' => '', # Confirmar con DUna
-                'brand' => '', # Confirmar con DUna
-                'manufacturer' => '', # Confirmar con DUna
+                'isbn' => '',
+                'brand' => '',
+                'manufacturer' => '',
                 'category' => $this->getCategory($item),
                 'color' => '', # Confirmar con DUna
                 'size' => '', # Confirmar con DUna
@@ -227,6 +234,12 @@ class OrderTokens
             ];
         }
         return $itemsList;
+    }
+
+    private function priceFormat($price): string
+    {
+        $priceFix = number_format($price, 2, '.', '');
+        return $priceFix * 100;
     }
 
     /**
