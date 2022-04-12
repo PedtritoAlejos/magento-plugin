@@ -194,6 +194,7 @@ class OrderTokens
         $items = $quote->getItemsCollection();
         $itemsList = [];
         foreach ($items as $item) {
+            if ($item->getParentItem()) continue;
             $itemsList[] = [
                 'id' => $item->getProductId(),
                 'name' => $item->getName(),
