@@ -169,7 +169,7 @@ class OrderTokens
                 'items' => $this->getItems($quote),
                 'discounts' => [],
                 'shipping_options' => [
-                    'type' => 'pickup'
+                    'type' => 'delivery'
                 ],
                 'webhook_urls' => [
                     'notify_order' => $domain . 'api/v1/orders/notify',
