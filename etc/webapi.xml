@@ -8,4 +8,11 @@
             <resource ref="admin"/>
         </resources>
     </route>
+
+    <route url="/V1/removecoupon" method="POST">
+        <service class="DUna\Payments\Api\CheckoutInterface" method="removecoupon"/>
+        <resources>
+            <resource ref="admin"/>
+        </resources>
+    </route>
 </routes>

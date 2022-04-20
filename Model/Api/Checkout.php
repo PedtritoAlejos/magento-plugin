@@ -32,4 +32,23 @@ class Checkout
         }
 
     }
+
+    /**
+     * Gets the json.
+     *
+     * @param \DUna\Payments\Api\Data\CheckoutInterface $parameters parameters
+     *
+     * @return []
+     */
+    public function removecoupon(\DUna\Payments\Api\Data\CheckoutInterface $parameters)
+    {
+        $data = $parameters->getData();
+        if ($parameters && $parameters->getData()) {
+            $deviceObject = $this->checkout->removecoupon($parameters->getData());
+            return array($deviceObject);
+        } else {
+            return array(['success' => false]);
+        }
+
+    }
 }
