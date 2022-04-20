@@ -8,16 +8,11 @@
 
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
-    <!--TAB NAME-->
-    <tab id="duna" translate="label" sortOrder="150">
-        <label>D-Una</label>
-    </tab>
-
         <!--CONFIG SECTION-->
         <section id="duna" translate="label" sortOrder="0"
                  showInDefault="1" showInWebsite="1" showInStore="1">
         <label>D-Una Settings</label>
-        <tab>duna</tab>
+        <tab>sales</tab>
         <resource>DUna_Payments::config_duna</resource>
 
             <!-- GENERAL -->
@@ -28,19 +23,30 @@
                     <label>Module Enable</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="publickey" translate="label comment" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Public Key</label>
-                    <comment> The public will be used at the browser level (In frontend. Example: When configuring a JS plugin)</comment>
-                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                <field id="mode" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Environment</label>
+                    <source_model>DUna\Payments\Model\Config\Source\Sandobox</source_model>
                 </field>
-                <field id="privatekey" translate="label comment" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Private Key</label>
+                <field id="private_key_stage" translate="label comment" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Private Key Stage</label>
                     <comment>On the server side of your application. (In backend. Example: When an order is tokenized)</comment>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                 </field>
-                <field id="checkout" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Default Magento Checkout Enable</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <field id="public_key_stage" translate="label comment" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Public Key Stage</label>
+                    <comment> The public will be used at the browser level (In frontend. Example: When configuring a JS plugin)</comment>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+
+                <field id="private_key_production" translate="label comment" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Private Key Production</label>
+                    <comment>On the server side of your application. (In backend. Example: When an order is tokenized)</comment>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+                <field id="public_key_production" translate="label comment" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Public Key Production</label>
+                    <comment> The public will be used at the browser level (In frontend. Example: When configuring a JS plugin)</comment>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                 </field>
             </group>
         </section>
