@@ -20,4 +20,13 @@ interface CheckoutInterface
      */
     public function applycoupon(\DUna\Payments\Api\Data\CheckoutInterface $parameters);
 
+    /**
+     * Get removecoupon
+     *
+     * @param \DUna\Payments\Api\Data\CheckoutInterface $parameters parameters
+     *
+     *
+     * @return array
+     */
+    public function removecoupon(\DUna\Payments\Api\Data\CheckoutInterface $parameters);
 }
