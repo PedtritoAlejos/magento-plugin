@@ -173,10 +173,10 @@ class OrderTokens
                 ],
                 'webhook_urls' => [
                     'notify_order' => $domain . 'api/v1/orders/notify',
-                    'apply_coupon' => $domain . 'api/v1/orders/{order_token}/coupons',
-                    'remove_coupon' => $domain . 'api/v1/orders/{order_token}/coupons/{coupon_code}',
-                    'get_shipping_options' => $domain . 'api/v1/orders/{order_token}/shipping-methods',
-                    'update_shipping_options' => $domain . 'api/v1/orders/{order_token}/shipping-methods/{code}'
+                    'apply_coupon' => $domain . 'api/v1/orders/{order_id}/coupons',
+                    'remove_coupon' => $domain . 'api/v1/orders/{order_id}/coupons/{coupon_code}',
+                    'get_shipping_options' => $domain . 'api/v1/orders/{order_id}/shipping-methods',
+                    'update_shipping_options' => $domain . 'api/v1/orders/{order_id}/shipping-methods/{code}'
                 ]
             ]
         ];
