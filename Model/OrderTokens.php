@@ -172,11 +172,11 @@ class OrderTokens
                     'type' => 'delivery'
                 ],
                 'webhook_urls' => [
-                    'notify_order' => $domain . 'rest/api/v1/orders/notify',
-                    'apply_coupon' => $domain . 'rest/api/v1/orders/{order_id}/coupons',
-                    'remove_coupon' => $domain . 'rest/api/v1/orders/{order_id}/coupons/{coupon_code}',
-                    'get_shipping_options' => $domain . 'rest/api/v1/orders/{order_id}/shipping-methods',
-                    'update_shipping_options' => $domain . 'rest/api/v1/orders/{order_id}/shipping-methods/{code}'
+                    'notify_order' => $domain . 'rest/api/V1/orders/notify',
+                    'apply_coupon' => $domain . 'rest/api/V1/orders/{order_id}/coupons',
+                    'remove_coupon' => $domain . 'rest/api/V1/orders/{order_id}/coupons/{coupon_code}',
+                    'get_shipping_options' => $domain . 'rest/api/V1/orders/{order_id}/shipping-methods',
+                    'update_shipping_options' => $domain . 'rest/api/V1/orders/{order_id}/shipping-methods/{code}'
                 ]
             ]
         ];
