@@ -172,11 +172,11 @@ class OrderTokens
                     'type' => 'delivery'
                 ],
                 'webhook_urls' => [
-                    'notify_order' => $domain . 'rest/api/V1/orders/notify',
-                    'apply_coupon' => $domain . 'rest/api/V1/orders/{order_id}/coupons',
-                    'remove_coupon' => $domain . 'rest/api/V1/orders/{order_id}/coupons/{coupon_code}',
-                    'get_shipping_methods' => $domain . 'rest/api/V1/orders/{order_id}/shipping-methods',
-                    'update_shipping_method' => $domain . 'rest/api/V1/orders/{order_id}/shipping-methods/{code}'
+                    'notify_order' => $domain . 'rest/V1/orders/notify',
+                    'apply_coupon' => $domain . 'rest/V1/orders/{order_id}/coupons',
+                    'remove_coupon' => $domain . 'rest/V1/orders/{order_id}/coupons/{coupon_code}',
+                    'get_shipping_methods' => $domain . 'rest/V1/orders/{order_id}/shipping-methods',
+                    'update_shipping_method' => $domain . 'rest/V1/orders/{order_id}/shipping-methods/{code}'
                 ]
             ]
         ];
@@ -282,7 +282,11 @@ class OrderTokens
      */
     private function tokenize(): string
     {
-        return $this->request($this->getBody());
+        $body = $this->getBody();
+        $fp = fopen('data.txt', 'w');
+        fwrite($fp, $body);
+        fclose($fp);
+        return $this->request($body);
     }
 
     /**
