@@ -120,9 +120,11 @@ class ShippingMethods implements ShippingMethodsInterface
             }
         }
 
-        $shippingMethods = [];
+        $shippingMethods = [
+            'shipping_methods' => []
+        ];
         foreach ($output as $method) {
-            $shippingMethods[] = [
+            $shippingMethods['shipping_methods'][] = [
                 "code" => $method->getMethodCode(),
                 "name" => $method->getMethodTitle(),
                 "cost" => $method->getAmount(),
@@ -132,11 +134,7 @@ class ShippingMethods implements ShippingMethodsInterface
             ];
         }
 
-        if (count($shippingMethods)) {
-            return [['shipping_methods' => $shippingMethods]];
-        }
-
-        return $shippingMethods;
+        return json_encode($shippingMethods);
     }
 
     /**
