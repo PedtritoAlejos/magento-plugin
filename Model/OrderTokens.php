@@ -178,6 +178,18 @@ class OrderTokens
                     'get_shipping_methods' => $domain . 'rest/V1/orders/{order_id}/shipping-methods',
                     'update_shipping_method' => $domain . 'rest/V1/orders/{order_id}/shipping-methods/{code}'
                 ]
+            ],
+            "shipping_methods" => [
+                [
+                    "code" => "freeshipping",
+                    "name" => "Free",
+                    "cost" => 0,
+                    "tax_amount" => 0,
+                    "min_delivery_date" => "",
+                    "max_delivery_date" => "",
+                    "display_cost" => "string",
+                    "display_tax_amount" => "string"
+                ]
             ]
         ];
         return $this->json->serialize($body);
