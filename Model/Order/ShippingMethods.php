@@ -5,6 +5,7 @@ namespace DUna\Payments\Model\Order;
 use Magento\Framework\Exception\NoSuchEntityException;
 use DUna\Payments\Api\ShippingMethodsInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Framework\Webapi\Rest\Request;
 
 /**
  * Class ShippingMethods
@@ -57,7 +58,8 @@ class ShippingMethods implements ShippingMethodsInterface
         \Magento\Directory\Model\Currency $currency,
         \Magento\Quote\Api\ShippingMethodManagementInterface $shippingMethodManagementInterface,
         \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        Request $request
     ) {
         $this->quoteRepository = $quoteRepository;
         $this->converter = $converter;
@@ -66,6 +68,23 @@ class ShippingMethods implements ShippingMethodsInterface
         $this->shippingMethodManagementInterface = $shippingMethodManagementInterface;
         $this->productRepository = $productRepository;
         $this->_scopeConfig = $scopeConfig;
+        $this->request = $request;
+    }
+
+    private function setShippingInfo($quote)
+    {
+        $body = $this->request->getBodyParams();
+
+        $shippingAddress = $quote->getShippingAddress();
+
+        $shippingAddress->setFirstname($body['first_name']);
+        $shippingAddress->setLastname($body['last_name']);
+        $shippingAddress->setTelephone($body['phone']);
+        $shippingAddress->setStreet($body['address1']);
+        $shippingAddress->setCity($body['city']);
+        $shippingAddress->setPostcode($body['zipcode']);
+        $shippingAddress->setCountryId($body['country_iso']);
+        $shippingAddress->save();
     }
 
     /**
@@ -81,6 +100,8 @@ class ShippingMethods implements ShippingMethodsInterface
 
         /** @var Quote $quote */
         $quote = $this->quoteRepository->getActive($cartId);
+
+        $this->setShippingInfo($quote);
 
         // no methods applicable for empty carts or carts with virtual products
         if ($quote->isVirtual() || 0 == $quote->getItemsCount()) {

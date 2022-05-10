@@ -5,7 +5,6 @@
             class="DUna\Payments\Block\Checkout"
             name="checkout.cart.methods.onepage.bottom"
             template="DUna_Payments::Checkout.phtml"
-            ifconfig="duna/config/enable"
         />
     </body>
 </page>
