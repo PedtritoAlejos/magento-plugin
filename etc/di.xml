@@ -7,4 +7,13 @@
     <preference for="DUna\Payments\Api\Data\CheckoutInterface" type="DUna\Payments\Model\Api\CheckoutData" />
     <preference for="DUna\Payments\Api\PostManagementInterface" type="DUna\Payments\Model\PostManagement"/>
     <preference for="DUna\Payments\Api\ShippingMethodsInterface" type="DUna\Payments\Model\Order\ShippingMethods"/>
+    <!-- Custom Logger -->
+    <type name="DUna\Payments\Logger\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">DUnaPayments</argument>
+            <argument name="handlers"  xsi:type="array">
+                <item name="system" xsi:type="object">DUna\Payments\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

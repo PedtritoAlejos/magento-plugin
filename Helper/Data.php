@@ -3,7 +3,9 @@
 namespace DUna\Payments\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
 use Magento\Store\Model\ScopeInterface;
+use DUna\Payments\Logger\Logger;
 
 class Data extends AbstractHelper
 {
@@ -13,6 +15,20 @@ class Data extends AbstractHelper
     const XML_PATH_DUNA = 'duna/';
     const MODE_PRODUCTION = 2;
     const MODE_STAGING = 1;
+
+    /**
+     * Logger instance
+     * @var Logger
+     */
+    protected $logger;
+
+    public function __construct(
+        Context $context,
+        Logger $logger
+    ) {
+        parent::__construct($context);
+        $this->logger = $logger;
+    }
 
     /**
      * @param $field
@@ -49,5 +65,16 @@ class Data extends AbstractHelper
             $env = 'staging';
         }
         return $env;
+    }
+
+    /**
+     * Logger instance
+     * @param $message
+     * @param $type
+     * @param array $context
+     * @return void
+     */
+    public function log($type, $message, array $context = []) {
+        $this->logger->{$type}($message, $context);
     }
 }

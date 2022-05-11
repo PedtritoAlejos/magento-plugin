@@ -6,6 +6,8 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use DUna\Payments\Api\ShippingMethodsInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Webapi\Rest\Request;
+use DUna\Payments\Helper\Data;
+
 
 /**
  * Class ShippingMethods
@@ -48,6 +50,11 @@ class ShippingMethods implements ShippingMethodsInterface
     protected $_scopeConfig;
 
     /**
+     * @var Data
+     */
+    protected $helper;
+
+    /**
      * @param \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
      * @param \Magento\Quote\Model\Cart\ShippingMethodConverter $converter
      */
@@ -59,6 +66,7 @@ class ShippingMethods implements ShippingMethodsInterface
         \Magento\Quote\Api\ShippingMethodManagementInterface $shippingMethodManagementInterface,
         \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        Data $helper,
         Request $request
     ) {
         $this->quoteRepository = $quoteRepository;
@@ -68,6 +76,7 @@ class ShippingMethods implements ShippingMethodsInterface
         $this->shippingMethodManagementInterface = $shippingMethodManagementInterface;
         $this->productRepository = $productRepository;
         $this->_scopeConfig = $scopeConfig;
+        $this->helper = $helper;
         $this->request = $request;
     }
 
@@ -108,10 +117,12 @@ class ShippingMethods implements ShippingMethodsInterface
             return [];
         }
 
+        $quote->collectTotals();
         $shippingAddress = $quote->getShippingAddress();
         if (!$shippingAddress->getCountryId()) {
             throw new StateException(__('The shipping address is missing. Set the address and try again.'));
         }
+        $shippingAddress->setCollectShippingRates(true);
         $shippingAddress->collectShippingRates();
         $shippingRates = $shippingAddress->getGroupedAllShippingRates();
         foreach ($shippingRates as $carrierRates) {
@@ -133,8 +144,8 @@ class ShippingMethods implements ShippingMethodsInterface
                 "max_delivery_date" => ""
             ];
         }
-
-        return json_encode($shippingMethods);
+        $this->helper->log('debug', 'Shipping Methods:', $shippingMethods);
+        die(json_encode($shippingMethods));
     }
 
     /**

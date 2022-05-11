@@ -1,21 +1,18 @@
 <?xml version="1.0"?>
 
-<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
     <route url="/V1/applycoupon" method="POST">
         <service class="DUna\Payments\Api\CheckoutInterface" method="applycoupon"/>
         <resources>
             <resource ref="admin"/>
         </resources>
     </route>
-
-   <route url="/V1/removecoupon" method="POST">
+    <route url="/V1/removecoupon" method="POST">
         <service class="DUna\Payments\Api\CheckoutInterface" method="removecoupon"/>
         <resources>
             <resource ref="admin"/>
         </resources>
     </route>
-
     <route url="/V1/DUna/token" method="GET">
         <service class="DUna\Payments\Api\PostManagementInterface" method="getToken"/>
         <resources>

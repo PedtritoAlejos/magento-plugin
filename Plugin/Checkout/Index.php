@@ -43,7 +43,7 @@ class Index
         $returnDefault = $proceed();
         if ($isModuleEnable == '1') {
             $resultRedirect = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
-            $norouteUrl = $this->url->getUrl('noroute');
+            $norouteUrl = $this->url->getUrl('checkout/cart');
             $result = $resultRedirect->setUrl($norouteUrl);
             return $result;
         }

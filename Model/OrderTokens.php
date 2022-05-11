@@ -178,18 +178,6 @@ class OrderTokens
                     'get_shipping_methods' => $domain . 'rest/V1/orders/{order_id}/shipping-methods',
                     'update_shipping_method' => $domain . 'rest/V1/orders/{order_id}/shipping-methods/{code}'
                 ]
-            ],
-            "shipping_methods" => [
-                [
-                    "code" => "freeshipping",
-                    "name" => "Free",
-                    "cost" => 0,
-                    "tax_amount" => 0,
-                    "min_delivery_date" => "",
-                    "max_delivery_date" => "",
-                    "display_cost" => "string",
-                    "display_tax_amount" => "string"
-                ]
             ]
         ];
         return $this->json->serialize($body);
@@ -295,9 +283,7 @@ class OrderTokens
     private function tokenize(): string
     {
         $body = $this->getBody();
-        $fp = fopen('data.txt', 'w');
-        fwrite($fp, $body);
-        fclose($fp);
+        $this->helper->log('debug', 'Json to Tokenize:', [$body]);
         return $this->request($body);
     }
 
@@ -307,6 +293,8 @@ class OrderTokens
      */
     public function getToken(): string
     {
-        return $this->tokenize();
+        $token = $this->tokenize();
+        $this->helper->log('debug', 'Token:', [$token]);
+        return $token;
     }
 }
