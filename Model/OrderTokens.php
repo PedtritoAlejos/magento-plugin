@@ -176,7 +176,7 @@ class OrderTokens
                     'apply_coupon' => $domain . 'rest/V1/orders/{order_id}/coupons',
                     'remove_coupon' => $domain . 'rest/V1/orders/{order_id}/coupons/{coupon_code}',
                     'get_shipping_methods' => $domain . 'rest/V1/orders/{order_id}/shipping-methods',
-                    'update_shipping_method' => $domain . 'rest/V1/orders/{order_id}/shipping-methods/{code}'
+                    'update_shipping_method' => $domain . 'duna/set/shippingmethod/order/{order_id}/method'
                 ]
             ]
         ];
