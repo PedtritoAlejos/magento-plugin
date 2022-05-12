@@ -225,7 +225,7 @@ class OrderTokens
                 'color' => '', # Confirmar con DUna
                 'size' => '', # Confirmar con DUna
                 'weight' => [
-                    'weight' => number_format($item->getWeight(), 2, '.', ''),
+                    'weight' => $this->priceFormat($item->getWeight(), 2, '.', ''),
                     'unit' => $this->getWeightUnit()
                 ],
                 'image_url' => $this->getImageUrl($item),
@@ -236,10 +236,14 @@ class OrderTokens
         return $itemsList;
     }
 
-    private function priceFormat($price): string
+    /**
+     * @param $price
+     * @return int
+     */
+    private function priceFormat($price): int
     {
         $priceFix = number_format($price, 2, '.', '');
-        return $priceFix * 100;
+        return (int) $priceFix * 100;
     }
 
     /**
