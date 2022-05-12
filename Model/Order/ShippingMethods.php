@@ -7,6 +7,9 @@ use DUna\Payments\Api\ShippingMethodsInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Webapi\Rest\Request;
 use DUna\Payments\Helper\Data;
+use Magento\Framework\Controller\Result\JsonFactory;
+use DUna\Payments\Model\OrderTokens;
+use Magento\Framework\Serialize\Serializer\Json;
 
 
 /**
@@ -55,6 +58,18 @@ class ShippingMethods implements ShippingMethodsInterface
     protected $helper;
 
     /**
+     * @var JsonFactory
+     */
+    private $resultJsonFactory;
+
+    private $orderTokens;
+
+    /**
+     * @var Json
+     */
+    private $json;
+
+    /**
      * @param \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
      * @param \Magento\Quote\Model\Cart\ShippingMethodConverter $converter
      */
@@ -67,7 +82,10 @@ class ShippingMethods implements ShippingMethodsInterface
         \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         Data $helper,
-        Request $request
+        JsonFactory $resultJsonFactory,
+        Request $request,
+        Json $json,
+        OrderTokens $orderTokens
     ) {
         $this->quoteRepository = $quoteRepository;
         $this->converter = $converter;
@@ -77,7 +95,121 @@ class ShippingMethods implements ShippingMethodsInterface
         $this->productRepository = $productRepository;
         $this->_scopeConfig = $scopeConfig;
         $this->helper = $helper;
+        $this->resultJsonFactory = $resultJsonFactory;
         $this->request = $request;
+        $this->json = $json;
+        $this->orderTokens = $orderTokens;
+    }
+
+    /**
+     * Returns Shipping Methods
+     *
+     * @params int $cartId
+     * @return array
+     * @throws NoSuchEntityException
+     */
+    public function get(int $cartId)
+    {
+        /** @var Quote $quote */
+        $quote = $this->quoteRepository->getActive($cartId);
+
+        // Set Shipping Address
+        $this->setShippingInfo($quote);
+
+        // no methods applicable for empty carts or carts with virtual products
+        if ($quote->isVirtual() || 0 == $quote->getItemsCount()) {
+            return [];
+        }
+
+        // Get Shipping Rates
+        $shippingRates = $this->getShippingRates($quote);
+
+        $shippingMethods = [
+            'shipping_methods' => []
+        ];
+        foreach ($shippingRates as $method) {
+            $shippingMethods['shipping_methods'][] = [
+                'code' => $method->getMethodCode(),
+                'name' => $method->getMethodTitle(),
+                'cost' => $method->getAmount(),
+                'tax_amount' => $method->getPriceInclTax(),
+                'min_delivery_date' => '',
+                'max_delivery_date' => ''
+            ];
+        }
+        $this->helper->log('debug', 'Shipping Methods:', $shippingMethods);
+        die($this->json->serialize($shippingMethods));
+    }
+
+    /**
+     * @param int $cartId
+     * @param string $code
+     * @return mixed
+     * @throws NoSuchEntityException
+     */
+    public function set(int $cartId, string $code) {
+
+        /** @var Quote $quote */
+        $quote = $this->quoteRepository->getActive($cartId);
+
+        // Get Shipping Rates
+        $shippingRates = $this->getShippingRates($quote);
+
+        $shippingAmount = 0;
+        foreach ($shippingRates as $shippingMethod) {
+            if ($shippingMethod->getMethodCode() == $code) {
+                $shippingAmount = $shippingMethod->getAmount();
+                break;
+            }
+        }
+
+        $order = $this->orderTokens->getBody($quote);
+        $order['order']['shipping_address'] = [
+            'id' => 0,
+            'user_id' => (string) 0,
+            'first_name' => 'test',
+            'last_name' => 'test',
+            'phone' => '8677413045',
+            'identity_document' => '',
+            'lat' => 0,
+            'lng' => 0,
+            'address_1' => 'test',
+            'address_2' => 'test',
+            'city' => 'test',
+            'zipcode' => 'test',
+            'state_name' => 'test',
+            'country_code' => 'test',
+            'additional_description' => '',
+            'address_type' => '',
+            'is_default' => false,
+            'created_at' => '',
+            'updated_at' => '',
+        ];
+        $order['order']['status'] = 'pending';
+
+        return $this->getJson($order);
+    }
+
+    /**
+     * @param $quote
+     * @return array
+     */
+    private function getShippingRates($quote)
+    {
+        $quote->collectTotals();
+        $shippingAddress = $quote->getShippingAddress();
+        if (!$shippingAddress->getCountryId()) {
+            throw new StateException(__('The shipping address is missing. Set the address and try again.'));
+        }
+        $shippingAddress->setCollectShippingRates(true);
+        $shippingAddress->collectShippingRates();
+        $shippingRates = $shippingAddress->getGroupedAllShippingRates();
+        foreach ($shippingRates as $carrierRates) {
+            foreach ($carrierRates as $rate) {
+                $output[] = $this->converter->modelToDataObject($rate, $quote->getQuoteCurrencyCode());
+            }
+        }
+        return $output;
     }
 
     private function setShippingInfo($quote)
@@ -94,118 +226,6 @@ class ShippingMethods implements ShippingMethodsInterface
         $shippingAddress->setPostcode($body['zipcode']);
         $shippingAddress->setCountryId($body['country_iso']);
         $shippingAddress->save();
-    }
-
-    /**
-     * Returns Shipping Methods
-     *
-     * @params int $cartId
-     * @return array
-     * @throws NoSuchEntityException
-     */
-    public function get(int $cartId)
-    {
-        $output = [];
-
-        /** @var Quote $quote */
-        $quote = $this->quoteRepository->getActive($cartId);
-
-        $this->setShippingInfo($quote);
-
-        // no methods applicable for empty carts or carts with virtual products
-        if ($quote->isVirtual() || 0 == $quote->getItemsCount()) {
-            return [];
-        }
-
-        $quote->collectTotals();
-        $shippingAddress = $quote->getShippingAddress();
-        if (!$shippingAddress->getCountryId()) {
-            throw new StateException(__('The shipping address is missing. Set the address and try again.'));
-        }
-        $shippingAddress->setCollectShippingRates(true);
-        $shippingAddress->collectShippingRates();
-        $shippingRates = $shippingAddress->getGroupedAllShippingRates();
-        foreach ($shippingRates as $carrierRates) {
-            foreach ($carrierRates as $rate) {
-                $output[] = $this->converter->modelToDataObject($rate, $quote->getQuoteCurrencyCode());
-            }
-        }
-
-        $shippingMethods = [
-            'shipping_methods' => []
-        ];
-        foreach ($output as $method) {
-            $shippingMethods['shipping_methods'][] = [
-                "code" => $method->getMethodCode(),
-                "name" => $method->getMethodTitle(),
-                "cost" => $method->getAmount(),
-                "tax_amount" => $method->getPriceInclTax(),
-                "min_delivery_date" => "",
-                "max_delivery_date" => ""
-            ];
-        }
-        $this->helper->log('debug', 'Shipping Methods:', $shippingMethods);
-        die(json_encode($shippingMethods));
-    }
-
-    /**
-     * @param int $cartId
-     * @param string $code
-     * @return mixed
-     * @throws NoSuchEntityException
-     */
-    public function set(int $cartId, string $code) {
-        /** @var Quote $quote */
-        $quote = $this->quoteRepository->getActive($cartId);
-        $shippingMethods = $this->shippingMethodManagementInterface->getList($cartId);
-        $shippingAmount = 0;
-        foreach ($shippingMethods as $shippingMethod) {
-            if ($shippingMethod->getMethodCode() == $code) {
-                $shippingAmount = $shippingMethod->getAmount();
-                break;
-            }
-        }
-
-        $address = $quote->getShippingAddress() ?: $quote->getBillingAddress();
-        $response = [
-            "order" => [
-                "order_id" => $quote->getId(),
-                "store_code" => $this->storeManager->getStore()->getCode(),
-                "currency" => $quote->getQuoteCurrencyCode(),
-                "tax_amount" => $quote->getStoreToQuoteRate(),
-                "shipping_amount" => $shippingAmount,
-                "items_total_amount" => $quote->getItemsCount(),
-                "sub_total" => $quote->getSubtotal(),
-                "total_amount" => $quote->getGrandTotal(),
-                "items" => $this->getItems($quote),
-                "discounts" => [
-                    [
-                        "amount" => 0,
-                        "display_amount" => "",
-                        "code" => "",
-                        "reference" => "",
-                        "description" => "",
-                        "details_url" => "",
-                        "free_shipping" => [
-                            "is_free_shipping" => false,
-                            "maximum_cost_allowed" => 0
-                        ],
-                        "discount_category" => ""
-                    ]
-                ],
-                "shipping_address" => $this->getShippingAddress($address),
-                "shipping_options" => null,
-                "user_instructions" => "",
-                "metadata" => [
-                    "key1" => "",
-                    "key2" => ""
-                ],
-                "status" => $quote->getIsActive(),
-                "payment" => null
-            ]
-        ];
-
-        return $response;
     }
 
     /**
@@ -291,5 +311,16 @@ class ShippingMethods implements ShippingMethodsInterface
             "created_at" => $shippingAddress->getCreatedAt(),
             "updated_at" => $shippingAddress->getUpdatedAt()
         ];
+    }
+
+    /**
+     * @param $data
+     * @return \Magento\Framework\Controller\Result\Json
+     */
+    private function getJson($data)
+    {
+        $json = $this->resultJsonFactory->create();
+        $json->setData($data);
+        return $json;
     }
 }

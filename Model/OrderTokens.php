@@ -150,11 +150,10 @@ class OrderTokens
     }
 
     /**
-     * @return string
+     * @return array
      */
-    private function getBody(): string
+    public function getBody($quote): array
     {
-        $quote = $this->checkoutSession->getQuote();
         $totals = $this->priceFormat($quote->getGrandTotal());
         $domain = $this->storeManager->getStore()->getBaseUrl();
         $body = [
@@ -180,7 +179,7 @@ class OrderTokens
                 ]
             ]
         ];
-        return $this->json->serialize($body);
+        return $body;
     }
 
     /**
@@ -282,7 +281,8 @@ class OrderTokens
      */
     private function tokenize(): string
     {
-        $body = $this->getBody();
+        $quote = $this->checkoutSession->getQuote();
+        $body = $this->json->serialize($this->getBody($quote));
         $this->helper->log('debug', 'Json to Tokenize:', [$body]);
         return $this->request($body);
     }

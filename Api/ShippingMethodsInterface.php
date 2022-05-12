@@ -18,4 +18,5 @@ interface ShippingMethodsInterface
      * @return mixed
      */
     public function set(int $cartId, string $code);
+
 }
