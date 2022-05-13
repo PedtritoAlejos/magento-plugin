@@ -170,6 +170,7 @@ class OrderTokens
                 'shipping_options' => [
                     'type' => 'delivery'
                 ],
+                'redirect_url' => $domain,
                 'webhook_urls' => [
                     'notify_order' => $domain . 'rest/V1/orders/notify',
                     'apply_coupon' => $domain . 'rest/V1/orders/{order_id}/coupons',
