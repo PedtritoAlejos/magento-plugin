@@ -164,7 +164,7 @@ class OrderTokens
                 'items_total_amount' => $totals,
                 'sub_total' => $totals,
                 'total_amount' => $totals,
-                'store_code' => $this->storeManager->getStore()->getCode(),
+                'store_code' => 'all', //$this->storeManager->getStore()->getCode(),
                 'items' => $this->getItems($quote),
                 'discounts' => [],
                 'shipping_options' => [

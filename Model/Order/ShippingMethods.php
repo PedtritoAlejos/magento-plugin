@@ -186,6 +186,7 @@ class ShippingMethods implements ShippingMethodsInterface
             'updated_at' => '',
         ];
         $order['order']['status'] = 'pending';
+        $order['order']['shipping_amount'] = $shippingAmount;
 
         return $this->getJson($order);
     }
