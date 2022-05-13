@@ -81,7 +81,7 @@ class PostManagement {
         $shippingAddress = $quote->getShippingAddress();
         $billingAddress = $quote->getBillingAddress();
         $shippingAddress->setRegionId(941);
-        $shippingAddress->setShippingMethod('freeshipping_freeshipping');
+        $shippingAddress->setShippingMethod('freeshipping');
         $shippingAddress->setShippingDescription('Free Shipping - Free');
         $billingAddress->setShippingMethod('freeshipping');
         $shippingAddress->setCollectShippingRates(true);
@@ -95,6 +95,15 @@ class PostManagement {
         $quote->setCustomerGroupId(\Magento\Customer\Api\Data\GroupInterface::NOT_LOGGED_IN_ID);
 
         return $quote;
+    }
+
+    /**
+     * @return false|string
+     */
+    public function getToken()
+    {
+        $json = ['orderToken' => $this->orderTokens->getToken()];
+        return json_encode($json);
     }
 
 }
