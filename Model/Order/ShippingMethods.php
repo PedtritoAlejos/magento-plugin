@@ -158,7 +158,7 @@ class ShippingMethods implements ShippingMethodsInterface
         $shippingAmount = 0;
         foreach ($shippingRates as $shippingMethod) {
             if ($shippingMethod->getMethodCode() == $code) {
-                $shippingAmount = $shippingMethod->getAmount();
+                $shippingAmount = $this->orderTokens->priceFormat($shippingMethod->getAmount());
                 break;
             }
         }
@@ -187,6 +187,7 @@ class ShippingMethods implements ShippingMethodsInterface
         ];
         $order['order']['status'] = 'pending';
         $order['order']['shipping_amount'] = $shippingAmount;
+        $order['order']['total_amount'] += $shippingAmount;
 
         return $this->getJson($order);
     }

@@ -162,8 +162,8 @@ class OrderTokens
                 'currency' => $quote->getCurrency()->getQuoteCurrencyCode(),
                 'tax_amount' => $this->priceFormat($quote->getCustomerTaxvat()),
                 'items_total_amount' => $totals,
-                'sub_total' => $totals + 1,
-                'total_amount' => $totals + 2,
+                'sub_total' => $totals,
+                'total_amount' => $totals,
                 'store_code' => 'all', //$this->storeManager->getStore()->getCode(),
                 'items' => $this->getItems($quote),
                 'discounts' => [],
@@ -240,7 +240,7 @@ class OrderTokens
      * @param $price
      * @return int
      */
-    private function priceFormat($price): int
+    public function priceFormat($price): int
     {
         $priceFix = number_format($price, 2, '.', '');
         return (int) $priceFix * 100;
