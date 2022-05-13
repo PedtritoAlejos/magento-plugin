@@ -131,7 +131,7 @@ class ShippingMethods implements ShippingMethodsInterface
             $shippingMethods['shipping_methods'][] = [
                 'code' => $method->getMethodCode(),
                 'name' => $method->getMethodTitle(),
-                'cost' => $method->getAmount(),
+                'cost' => $this->orderTokens->priceFormat($method->getAmount()),
                 'tax_amount' => $method->getPriceInclTax(),
                 'min_delivery_date' => '',
                 'max_delivery_date' => ''
@@ -205,6 +205,7 @@ class ShippingMethods implements ShippingMethodsInterface
         }
         $shippingAddress->setCollectShippingRates(true);
         $shippingAddress->collectShippingRates();
+        $shippingAddress->save();
         $shippingRates = $shippingAddress->getGroupedAllShippingRates();
         foreach ($shippingRates as $carrierRates) {
             foreach ($carrierRates as $rate) {
@@ -219,7 +220,6 @@ class ShippingMethods implements ShippingMethodsInterface
         $body = $this->request->getBodyParams();
 
         $shippingAddress = $quote->getShippingAddress();
-
         $shippingAddress->setFirstname($body['first_name']);
         $shippingAddress->setLastname($body['last_name']);
         $shippingAddress->setTelephone($body['phone']);
@@ -227,7 +227,20 @@ class ShippingMethods implements ShippingMethodsInterface
         $shippingAddress->setCity($body['city']);
         $shippingAddress->setPostcode($body['zipcode']);
         $shippingAddress->setCountryId($body['country_iso']);
+        $shippingAddress->setRegionId(941);
         $shippingAddress->save();
+
+        $billingAddress = $quote->getBillingAddress();
+        $billingAddress->setFirstname($body['first_name']);
+        $billingAddress->setLastname($body['last_name']);
+        $billingAddress->setTelephone($body['phone']);
+        $billingAddress->setStreet($body['address1']);
+        $billingAddress->setCity($body['city']);
+        $billingAddress->setPostcode($body['zipcode']);
+        $billingAddress->setCountryId($body['country_iso']);
+        $billingAddress->setRegionId(941);
+        $billingAddress->save();
+
     }
 
     /**
