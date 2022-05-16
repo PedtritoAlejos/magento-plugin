@@ -87,6 +87,9 @@ class PostManagement {
         $shippingAddress->setCollectShippingRates(true);
         $shippingAddress->save();
 
+
+        $quote->getShippingAddress()->setShippingMethod('freeshipping_freeshipping');
+
         $quote->setShippingAddress($shippingAddress);
 
         $quote->setCustomerId(null);
