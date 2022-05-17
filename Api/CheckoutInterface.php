@@ -11,14 +11,11 @@ namespace DUna\Payments\Api;
 interface CheckoutInterface
 {
     /**
-     * Gets the json.
-     *
-     * @api
-     * @param \DUna\Payments\Api\Data\CheckoutInterface $parameters parameters
-     *
-     * @return array
+     * @param int $cartId
+     * @return array|\Magento\Framework\Controller\Result\Json
+     * @throws NoSuchEntityException
      */
-    public function applycoupon(\DUna\Payments\Api\Data\CheckoutInterface $parameters);
+    public function applycoupon(int $cartId);
 
     /**
      * Get removecoupon

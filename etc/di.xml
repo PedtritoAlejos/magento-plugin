@@ -3,8 +3,7 @@
     <type name="Magento\Checkout\Controller\Index\Index">
         <plugin name="hideCheckout" type="DUna\Payments\Plugin\Checkout\Index" disabled="false"/>
     </type>
-    <preference for="DUna\Payments\Api\CheckoutInterface" type="DUna\Payments\Model\Api\Checkout" />
-    <preference for="DUna\Payments\Api\Data\CheckoutInterface" type="DUna\Payments\Model\Api\CheckoutData" />
+    <preference for="DUna\Payments\Api\CheckoutInterface" type="DUna\Payments\Model\Checkout" />
     <preference for="DUna\Payments\Api\PostManagementInterface" type="DUna\Payments\Model\PostManagement"/>
     <preference for="DUna\Payments\Api\ShippingMethodsInterface" type="DUna\Payments\Model\Order\ShippingMethods"/>
     <!-- Custom Logger -->

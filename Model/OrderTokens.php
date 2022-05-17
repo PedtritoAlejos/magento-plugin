@@ -166,14 +166,14 @@ class OrderTokens
                 'total_amount' => $totals,
                 'store_code' => 'all', //$this->storeManager->getStore()->getCode(),
                 'items' => $this->getItems($quote),
-                'discounts' => [],
+                'discounts' => [$this->getDiscounts($quote)],
                 'shipping_options' => [
                     'type' => 'delivery'
                 ],
                 'redirect_url' => $domain,
                 'webhook_urls' => [
                     'notify_order' => $domain . 'rest/V1/orders/notify',
-                    'apply_coupon' => $domain . 'rest/V1/orders/{order_id}/coupons',
+                    'apply_coupon' => $domain . 'duna/set/coupon/order/{order_id}',
                     'remove_coupon' => $domain . 'rest/V1/orders/{order_id}/coupons/{coupon_code}',
                     'get_shipping_methods' => $domain . 'rest/V1/orders/{order_id}/shipping-methods',
                     'update_shipping_method' => $domain . 'duna/set/shippingmethod/order/{order_id}/method'
@@ -181,6 +181,35 @@ class OrderTokens
             ]
         ];
         return $body;
+    }
+
+    /**
+     * Get Discounts
+     * @return array
+     */
+    private function getDiscounts($quote)
+    {
+        $discount = [];
+        $coupon = $quote->getCouponCode();
+
+        if ($coupon) {
+            $subTotalWithDiscount = $quote->getSubtotalWithDiscount();
+            $subTotal = $quote->getSubtotal();
+            $couponAmount = $subTotal - $subTotalWithDiscount;
+            $discount = [
+                'amount' => $this->priceFormat($couponAmount),
+                'code' => $coupon,
+                'reference' => $coupon,
+                'description' => '',
+                'details_url' => '',
+                'free_shipping' => [
+                    'is_free_shipping' => false,
+                    'maximum_cost_allowed' => 100
+                ],
+                'discount_category' => 'coupon'
+            ];
+        }
+        return $discount;
     }
 
     /**

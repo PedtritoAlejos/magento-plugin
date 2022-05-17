@@ -3,230 +3,322 @@
 namespace DUna\Payments\Model;
 
 use Magento\Framework\Exception\NoSuchEntityException;
-use Ced\CsMultiShipping\Model\Shipping;
+use DUna\Payments\Api\ShippingMethodsInterface;
+use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Framework\Webapi\Rest\Request;
+use DUna\Payments\Helper\Data;
+use Magento\Framework\Controller\Result\JsonFactory;
+use DUna\Payments\Model\OrderTokens;
+use Magento\Framework\Serialize\Serializer\Json;
+use DUna\Payments\Api\CheckoutInterface;
 
 
-class Checkout
+class Checkout implements CheckoutInterface
 {
-    protected $objectManager;
-
-    protected $scopeConfig;
-
-    protected $storeManager;
-
+    /**
+     * @var \Magento\Quote\Api\CartRepositoryInterface
+     */
     protected $quoteRepository;
 
-    protected $cart;
+    /**
+     * Shipping method converter
+     *
+     * @var ShippingMethodConverter
+     */
+    protected $converter;
 
-    protected $quoteFactory;
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $storeManager;
 
-    protected $_tokenFactory;
+    /**
+     * @var \Magento\Directory\Model\Currency
+     */
+    protected $_currency;
 
+    /**
+     * @var \Magento\Quote\Api\ShippingMethodManagementInterface
+     */
+    protected $shippingMethodManagementInterface;
+
+    /**
+     * @var \Magento\Catalog\Api\ProductRepositoryInterface
+     */
+    protected $productRepository;
+
+
+    protected $_scopeConfig;
+
+    /**
+     * @var Data
+     */
+    protected $helper;
+
+    /**
+     * @var JsonFactory
+     */
+    private $resultJsonFactory;
+
+    private $orderTokens;
+
+    /**
+     * @var Json
+     */
+    private $json;
+
+    /**
+     * @param \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
+     * @param \Magento\Quote\Model\Cart\ShippingMethodConverter $converter
+     */
     public function __construct(
-        \Magento\Quote\Model\QuoteFactory                  $quoteFactory,
-        \Magento\Framework\ObjectManagerInterface          $objectInterface,
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Directory\Model\Currency $currency,
+        \Magento\Quote\Api\ShippingMethodManagementInterface $shippingMethodManagementInterface,
+        \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Store\Model\StoreManagerInterface         $storeManager,
-        \Magento\Checkout\Model\Cart                       $cart,
-        \Magento\Quote\Api\CartRepositoryInterface         $quoteRepository,
-        \Magento\Integration\Model\Oauth\TokenFactory      $tokenFactory
-    )
-    {
-        $this->quoteFactory = $quoteFactory;
-        $this->objectManager = $objectInterface;
-        $this->scopeConfig = $scopeConfig;
-        $this->storeManager = $storeManager;
+        Data $helper,
+        JsonFactory $resultJsonFactory,
+        Request $request,
+        Json $json,
+        OrderTokens $orderTokens
+    ) {
         $this->quoteRepository = $quoteRepository;
-        $this->cart = $cart;
-        $this->_tokenFactory = $tokenFactory;
+        $this->converter = $converter;
+        $this->storeManager = $storeManager;
+        $this->_currency = $currency;
+        $this->shippingMethodManagementInterface = $shippingMethodManagementInterface;
+        $this->productRepository = $productRepository;
+        $this->_scopeConfig = $scopeConfig;
+        $this->helper = $helper;
+        $this->resultJsonFactory = $resultJsonFactory;
+        $this->request = $request;
+        $this->json = $json;
+        $this->orderTokens = $orderTokens;
     }
 
     /**
-     * getCartmobi
+     * @param int $cartId
+     * @return array|\Magento\Framework\Controller\Result\Json
+     * @throws NoSuchEntityException
+     */
+    public function applycoupon(int $cartId)
+    {
+        /** @var Quote $quote */
+        $quote = $this->quoteRepository->getActive($cartId);
+
+        $body = $this->request->getBodyParams();
+        $couponCode = $body['coupon_code'];
+        $quote->getShippingAddress()->setCollectShippingRates(true);
+        $quote->setCouponCode($couponCode)->collectTotals();
+        $quote->save();
+        $order = $this->orderTokens->getBody($quote);
+        return $this->getJson($order);
+    }
+
+    /**
+     * Get removecoupon
      *
-     * @param array $data data
+     * @param \DUna\Payments\Api\Data\CheckoutInterface $parameters parameters
+     *
      *
      * @return array
      */
-    function _getQuotemobi($data)
+    public function removecoupon(\DUna\Payments\Api\Data\CheckoutInterface $parameters)
     {
-        $token = isset($data['user_token']) ? $data['user_token'] : '0';
-        $tokenObj = $this->_tokenFactory->create()->load($token, 'token');
-        $customer_id = null;
-        if (!$tokenObj->getId()) {
-            throw new \Magento\Framework\Oauth\Exception(
-                __('Specified token does not exist')
-            );
-        } else {
-            $customer_id = $tokenObj->getCustomerId();
-            if (!$customer_id) {
-                throw new \Magento\Framework\Oauth\Exception(
-                    __('Specified token customer does not exist')
-                );
+
+        $cartId = 1;
+        $code   = 1;
+
+        /** @var Quote $quote */
+        $quote = $this->quoteRepository->getActive($cartId);
+
+        // Get Shipping Rates
+        $shippingRates = $this->getShippingRates($quote);
+
+        $shippingAmount = 0;
+        foreach ($shippingRates as $shippingMethod) {
+            if ($shippingMethod->getMethodCode() == $code) {
+                $shippingAmount = $this->orderTokens->priceFormat($shippingMethod->getAmount());
+                break;
             }
         }
-        $customer_id = isset($customer_id) ? $customer_id : '0';
-        $quote = null;
 
-        if ($customer_id) {
+        $order = $this->orderTokens->getBody($quote);
+        $order['order']['shipping_address'] = [
+            'id' => 0,
+            'user_id' => (string) 0,
+            'first_name' => 'test',
+            'last_name' => 'test',
+            'phone' => '8677413045',
+            'identity_document' => '',
+            'lat' => 0,
+            'lng' => 0,
+            'address_1' => 'test',
+            'address_2' => 'test',
+            'city' => 'test',
+            'zipcode' => 'test',
+            'state_name' => 'test',
+            'country_code' => 'test',
+            'additional_description' => '',
+            'address_type' => '',
+            'is_default' => false,
+            'created_at' => '',
+            'updated_at' => '',
+        ];
+        $order['order']['status'] = 'pending';
+        $order['order']['shipping_amount'] = $shippingAmount;
+        $order['order']['total_amount'] += $shippingAmount;
+
+        return $this->getJson($order);
+    }
+
+    /**
+     * @param $quote
+     * @return array
+     */
+    private function getShippingRates($quote)
+    {
+        $quote->collectTotals();
+        $shippingAddress = $quote->getShippingAddress();
+        if (!$shippingAddress->getCountryId()) {
+            throw new StateException(__('The shipping address is missing. Set the address and try again.'));
+        }
+        $shippingAddress->setCollectShippingRates(true);
+        $shippingAddress->collectShippingRates();
+        $shippingAddress->save();
+        $shippingRates = $shippingAddress->getGroupedAllShippingRates();
+        foreach ($shippingRates as $carrierRates) {
+            foreach ($carrierRates as $rate) {
+                $output[] = $this->converter->modelToDataObject($rate, $quote->getQuoteCurrencyCode());
+            }
+        }
+        return $output;
+    }
+
+    private function setShippingInfo($quote)
+    {
+        $body = $this->request->getBodyParams();
+
+        $shippingAddress = $quote->getShippingAddress();
+        $shippingAddress->setFirstname($body['first_name']);
+        $shippingAddress->setLastname($body['last_name']);
+        $shippingAddress->setTelephone($body['phone']);
+        $shippingAddress->setStreet($body['address1']);
+        $shippingAddress->setCity($body['city']);
+        $shippingAddress->setPostcode($body['zipcode']);
+        $shippingAddress->setCountryId($body['country_iso']);
+        $shippingAddress->setRegionId(941);
+        $shippingAddress->save();
+
+        $billingAddress = $quote->getBillingAddress();
+        $billingAddress->setFirstname($body['first_name']);
+        $billingAddress->setLastname($body['last_name']);
+        $billingAddress->setTelephone($body['phone']);
+        $billingAddress->setStreet($body['address1']);
+        $billingAddress->setCity($body['city']);
+        $billingAddress->setPostcode($body['zipcode']);
+        $billingAddress->setCountryId($body['country_iso']);
+        $billingAddress->setRegionId(941);
+        $billingAddress->save();
+
+    }
+
+    /**
+     * @throws NoSuchEntityException
+     */
+    protected function getItems($quote)
+    {
+        $items = [];
+        foreach ($quote->getItems() as $item) {
             try {
-                $quote = $this->quoteRepository->getForCustomer($customer_id);
-                $this->cart->setQuote($quote);
-                $this->isLoggedIn = true;
-
-            } catch (NoSuchEntityException $e) {
-
-                $store = $this->storeManager->getStore();
-                $quote = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory')->create();
-                $quote->setStore($store);
-
-                try {
-                    $customerd = $this->objectManager->create('\Magento\Customer\Api\CustomerRepositoryInterface')
-                        ->getById($customer_id);
-                    $quote->setCurrency();
-                    $quote->assignCustomer($customerd);
-                    $this->cart->getQuote()->collectTotals();
-                    $this->cart->setQuote($quote);
-
-                } catch (NoSuchEntityException $e) {
-                    $logData = ['title' => 'checkout_error', 'description' => $e->getMessage()];
-                    return ['success' => false, 'message' => 'Please contact admin for the error'];
-                }
-
-            } catch (Exception $e) {
-                return ['success' => false, 'message' => $e->getMessage()];
-            }
-        } else {
-            $cart_id = isset($data['cart_id']) ? $data['cart_id'] : '0';
-            if ($cart_id) {
-                try {
-                    $quote = $this->quoteRepository->get($cart_id);
-                    return ['success' => true, 'quote' => $quote];
-
-                } catch (NoSuchEntityException $e) {
-
-                    $quote = $this->quoteFactory->create();
-                    $this->cart->setQuote($quote);
-
-                    return ['success' => true, 'quote' => $quote];
-                } catch (Exception $e) {
-                    return ['success' => false, 'message' => $e->getMessage()];
-                }
-            } else {
-                $quote = $this->quoteFactory->create();
-                return ['success' => true, 'quote' => $quote];
+                $product = $this->productRepository->get($item->getSku());
+                $items[] = [
+                    "id" => $item->getItemId(),
+                    "name" => $item->getName(),
+                    "description" => $item->getDescription(),
+                    "options" => "",
+                    "total_amount" => [
+                        "amount" => ($item->getPrice() * $item->getQty()),
+                        "original_amount" => ($product->getPrice() * $item->getQty()),
+                        "currency" => $quote->getQuoteCurrencyCode(),
+                        "currency_symbol" => $this->_currency->getCurrencySymbol()
+                    ],
+                    "unit_price" => [
+                        "amount" => $item->getPrice(),
+                        "currency" => $quote->getQuoteCurrencyCode(),
+                        "currency_symbol" => $this->_currency->getCurrencySymbol()
+                    ],
+                    "tax_amount" => [
+                        "amount" => $quote->getStoreToQuoteRate(),
+                        "currency" => $quote->getQuoteCurrencyCode(),
+                        "currency_symbol" => $this->_currency->getCurrencySymbol()
+                    ],
+                    "quantity" => $item->getQty(),
+                    "uom" => $product->getUom(),
+                    "upc" => $product->getUpc(),
+                    "sku" => $item->getSku(),
+                    "isbn" => $product->getIsbn(),
+                    "brand" => $product->getBrand(),
+                    "manufacturer" => $product->getManufacturer(),
+                    "category" => implode(', ', $product->getCategoryIds()),
+                    "color" => $product->getColor(),
+                    "size" => $product->getSize(),
+                    "weight" => [
+                        "weight" => $product->getWeight(),
+                        "unit" => $this->_scopeConfig->getValue(
+                            'general/locale/weight_unit',
+                            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                        )
+                    ],
+                    "image_url" => $product->getProductUrl(),
+                    "details_url" => "",
+                    "type" => $item->getProductType(),
+                    "taxable" => (bool)$quote->getStoreToQuoteRate()
+                ];
+            } catch (\Exception $e) {
+                throw new CouldNotSaveException(__('The shipping method can\'t be set. %1', $e->getMessage()));
             }
         }
-        if (is_object($quote) && $quote->getEntityId()) {
-            return ['success' => true, 'quote' => $quote];
-        } else {
-            $quote = $this->quoteFactory->create();
-            $this->cart->setQuote($quote);
-            return ['success' => true, 'quote' => $quote];
-        }
+
+        return $items;
+    }
+
+    protected function getShippingAddress($shippingAddress)
+    {
+        return [
+            "id" => $shippingAddress->getId(),
+            "user_id" => $shippingAddress->getCustomerId(),
+            "first_name" => $shippingAddress->getFirstName(),
+            "last_name" => $shippingAddress->getLastName(),
+            "phone" => $shippingAddress->getTelephone(),
+            "identity_document" => $shippingAddress->getIdentityDocument(),
+            "lat" => $shippingAddress->getLat(),
+            "lng" => $shippingAddress->getLng(),
+            "address1" => $shippingAddress->getStreetLine(1),
+            "address2" => $shippingAddress->getStreetLine(2),
+            "city" => $shippingAddress->getCity(),
+            "zipcode" => $shippingAddress->getPostcode(),
+            "state_name" => $shippingAddress->getRegion(),
+            "country_code" => $shippingAddress->getCountryId(),
+            "additional_description" => $shippingAddress->getAdditionalDescription(),
+            "address_type" => $shippingAddress->getAddressType(),
+            "is_default" => (bool)$shippingAddress->getIsDefaultShipping(),
+            "created_at" => $shippingAddress->getCreatedAt(),
+            "updated_at" => $shippingAddress->getUpdatedAt()
+        ];
     }
 
     /**
-     * Initialize coupon
-     *
-     * @param array $data data
-     *
-     * @return array
+     * @param $data
+     * @return \Magento\Framework\Controller\Result\Json
      */
-    public function applycoupon($data)
+    private function getJson($data)
     {
-        $quote = $this->_getQuotemobi($data);
-        if (isset($quote['success']) && $quote['success']) {
-            $quote = $quote['quote'];
-        } else {
-            return ['code' => '0', 'success' => false, 'message' => "We can't find the quote item."];
-        }
-        if (!$quote->getItemsCount()) {
-            $jsonData = ['code' => '0', 'result' => ['success' => false, 'message' => 'You have no items in your shopping cart.']];
-            return $jsonData;
-        }
-
-        $couponCode = (string)isset($data['coupon_code']) ? $data['coupon_code'] : '';
-        if (isset($data['remove']) && $data['remove'] == 1) {
-            $couponCode = '';
-        }
-        $oldCouponCode = $quote->getCouponCode();
-        if (!strlen($couponCode) && !strlen($oldCouponCode)) {
-            $jsonData = ['code' => '0', 'result' => ['success' => false, 'message' => 'We cannot apply the coupon code.']];
-            return $jsonData;
-        }
-
-        try {
-            $quote->getShippingAddress()->setCollectShippingRates(true);
-            $quote->setCouponCode($couponCode)->collectTotals()->save();
-            if ($couponCode) {
-                if ($couponCode == $quote->getCouponCode()) {
-
-                    $jsonData = ['code' => '1', 'result' => ['success' => true, 'message' => 'You used coupon code ' . strip_tags($couponCode)]];
-                    return $jsonData;
-
-                } else {
-                    $jsonData = ['code' => '0', 'result' => ['success' => false, 'message' => 'The coupon code ' . strip_tags($couponCode) . ' is not valid.']];
-                    return $jsonData;
-                }
-            } else {
-                $jsonData = ['code' => '1', 'result' => ['success' => true, 'message' => 'You canceled the coupon code.']];
-                return $jsonData;
-            }
-
-        } catch (Exception $e) {
-            $logData = ['title' => 'Apply Coupon', 'description' => $e->getMessage()];
-
-            $jsonData = ['code' => '0', 'result' => ['success' => false, 'message' => 'We cannot apply the coupon code.']];
-            return $jsonData;
-        }
-    }
-
-    /**
-     * Initialize coupon
-     *
-     * @param array $data data
-     *
-     * @return array
-     */
-    public function removecoupon($data)
-    {
-        $quote = $this->_getQuotemobi($data);
-        if (isset($quote['success']) && $quote['success']) {
-            $quote = $quote['quote'];
-        } else {
-            return ['code' => '0', 'success' => false, 'message' => "We can't find the quote item."];
-        }
-
-        if (!$quote->getItemsCount()) {
-            $jsonData = ['code' => '0', 'result' => ['success' => false, 'message' => 'You have no items in your shopping cart.']];
-            return $jsonData;
-        }
-
-        $couponCode = (string)isset($data['coupon_code']) ? $data['coupon_code'] : '';
-        if (isset($data['remove']) && $data['remove'] == 1) {
-            $couponCode = '';
-        }
-
-        try {
-            $oldCouponCode = $quote->getCouponCode();
-            $codeLength = strlen($oldCouponCode);
-
-            if ($codeLength && $couponCode == $oldCouponCode) {
-                $couponCode = '';
-                $quote->getShippingAddress()->setCollectShippingRates(true);
-                $quote->setCouponCode($couponCode)->collectTotals()->save();
-
-                $jsonData = ['code' => '1', 'result' => ['success' => true, 'message' => 'You canceled the coupon code.']];
-                return $jsonData;
-            } else {
-                    $jsonData = ['code' => '0', 'result' => ['success' => false, 'message' => 'The coupon code ' . strip_tags($couponCode) . ' is not valid.']];
-                    return $jsonData;
-            }
-
-        } catch (Exception $e) {
-            $jsonData = ['code' => '0', 'result' => ['success' => false, 'message' => 'We cannot remove the coupon code.']];
-            return $jsonData;
-        }
+        $json = $this->resultJsonFactory->create();
+        $json->setData($data);
+        return $json;
     }
 }
