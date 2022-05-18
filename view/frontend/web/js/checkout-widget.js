@@ -24,7 +24,7 @@ define([
         },
         show: function () {
             const self = this,
-                  tokenUrl = Url.build('rest/default/V1/DUna/token');
+                  tokenUrl = Url.build('rest/V1/DUna/token');
             $.ajax({
                 method: 'GET',
                 url: tokenUrl
