@@ -165,7 +165,7 @@ class OrderTokens
                 'items_total_amount' => $totals,
                 'sub_total' => $totals,
                 'total_amount' => $totals,
-                'total_discount' => $discounts,
+                'total_discount' => 0,
                 'store_code' => 'all', //$this->storeManager->getStore()->getCode(),
                 'items' => $this->getItems($quote),
                 'discounts' => $discounts ? [$discounts] : [],
