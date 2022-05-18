@@ -165,7 +165,7 @@ class OrderTokens
                 'items_total_amount' => $totals,
                 'sub_total' => $totals,
                 'total_amount' => $totals,
-                'total_discount' => -1,
+                'total_discount' => $discounts,
                 'store_code' => 'all', //$this->storeManager->getStore()->getCode(),
                 'items' => $this->getItems($quote),
                 'discounts' => $discounts ? [$discounts] : [],
@@ -317,10 +317,8 @@ class OrderTokens
     private function tokenize(): string
     {
         $quote = $this->checkoutSession->getQuote();
-        $body = json_encode($this->getBody($quote));
-        $fp = fopen('data.txt', 'w');
-        fwrite($fp, $body);
-        fclose($fp);
+        $body = $this->json->serialize($this->getBody($quote));
+        $body = json_encode($this->getBody($quote), JSON_UNESCAPED_SLASHES);
         $this->helper->log('debug', 'Json to Tokenize:', [$body]);
         return $this->request($body);
     }
