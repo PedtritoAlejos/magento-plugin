@@ -317,7 +317,7 @@ class OrderTokens
     private function tokenize(): string
     {
         $quote = $this->checkoutSession->getQuote();
-        $body = $this->json->serialize($this->getBody($quote));
+        $body = json_encode($this->getBody($quote));
         $this->helper->log('debug', 'Json to Tokenize:', [$body]);
         return $this->request($body);
     }
