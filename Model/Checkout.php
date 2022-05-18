@@ -119,59 +119,18 @@ class Checkout implements CheckoutInterface
     }
 
     /**
-     * Get removecoupon
-     *
-     * @param \DUna\Payments\Api\Data\CheckoutInterface $parameters parameters
-     *
-     *
-     * @return array
+     * @param int $cartId
+     * @return array|\Magento\Framework\Controller\Result\Json
+     * @throws NoSuchEntityException
      */
-    public function removecoupon(\DUna\Payments\Api\Data\CheckoutInterface $parameters)
+    public function removecoupon(int $cartId)
     {
-
-        $cartId = 1;
-        $code   = 1;
-
         /** @var Quote $quote */
         $quote = $this->quoteRepository->getActive($cartId);
-
-        // Get Shipping Rates
-        $shippingRates = $this->getShippingRates($quote);
-
-        $shippingAmount = 0;
-        foreach ($shippingRates as $shippingMethod) {
-            if ($shippingMethod->getMethodCode() == $code) {
-                $shippingAmount = $this->orderTokens->priceFormat($shippingMethod->getAmount());
-                break;
-            }
-        }
-
+        $quote->getShippingAddress()->setCollectShippingRates(true);
+        $quote->setCouponCode('')->collectTotals();
+        $quote->save();
         $order = $this->orderTokens->getBody($quote);
-        $order['order']['shipping_address'] = [
-            'id' => 0,
-            'user_id' => (string) 0,
-            'first_name' => 'test',
-            'last_name' => 'test',
-            'phone' => '8677413045',
-            'identity_document' => '',
-            'lat' => 0,
-            'lng' => 0,
-            'address_1' => 'test',
-            'address_2' => 'test',
-            'city' => 'test',
-            'zipcode' => 'test',
-            'state_name' => 'test',
-            'country_code' => 'test',
-            'additional_description' => '',
-            'address_type' => '',
-            'is_default' => false,
-            'created_at' => '',
-            'updated_at' => '',
-        ];
-        $order['order']['status'] = 'pending';
-        $order['order']['shipping_amount'] = $shippingAmount;
-        $order['order']['total_amount'] += $shippingAmount;
-
         return $this->getJson($order);
     }
 

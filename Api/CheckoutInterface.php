@@ -18,12 +18,9 @@ interface CheckoutInterface
     public function applycoupon(int $cartId);
 
     /**
-     * Get removecoupon
-     *
-     * @param \DUna\Payments\Api\Data\CheckoutInterface $parameters parameters
-     *
-     *
-     * @return array
+     * @param int $cartId
+     * @return array|\Magento\Framework\Controller\Result\Json
+     * @throws NoSuchEntityException
      */
-    public function removecoupon(\DUna\Payments\Api\Data\CheckoutInterface $parameters);
+    public function removecoupon(int $cartId);
 }
