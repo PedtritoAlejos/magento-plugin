@@ -189,7 +189,7 @@ class OrderTokens
      */
     private function getDiscounts($quote)
     {
-        $discount = [];
+        $discount = '';
         $coupon = $quote->getCouponCode();
 
         if ($coupon) {
