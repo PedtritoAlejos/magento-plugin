@@ -319,8 +319,7 @@ class OrderTokens
         $quote = $this->checkoutSession->getQuote();
         $body = json_encode($this->getBody($quote));
         $fp = fopen('data.txt', 'w');
-        fwrite($fp, '1');
-        fwrite($fp, '23');
+        fwrite($fp, $body);
         fclose($fp);
         $this->helper->log('debug', 'Json to Tokenize:', [$body]);
         return $this->request($body);
