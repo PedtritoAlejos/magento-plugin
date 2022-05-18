@@ -273,7 +273,7 @@ class OrderTokens
     public function priceFormat($price): int
     {
         $priceFix = number_format($price, 2, '.', '');
-        return (int) $priceFix * 100;
+        return $priceFix * 100;
     }
 
     /**
