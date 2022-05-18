@@ -156,6 +156,7 @@ class OrderTokens
     {
         $totals = $this->priceFormat($quote->getGrandTotal());
         $domain = $this->storeManager->getStore()->getBaseUrl();
+        $discounts = $this->getDiscounts($quote);
         $body = [
             'order' => [
                 'order_id' => $quote->getId(),
@@ -166,7 +167,7 @@ class OrderTokens
                 'total_amount' => $totals,
                 'store_code' => 'all', //$this->storeManager->getStore()->getCode(),
                 'items' => $this->getItems($quote),
-                'discounts' => [$this->getDiscounts($quote)],
+                'discounts' => $discounts ? [$discounts] : [],
                 'shipping_options' => [
                     'type' => 'delivery'
                 ],
@@ -184,12 +185,11 @@ class OrderTokens
     }
 
     /**
-     * Get Discounts
-     * @return array
+     * @param $quote
+     * @return array|void
      */
     private function getDiscounts($quote)
     {
-        $discount = '';
         $coupon = $quote->getCouponCode();
 
         if ($coupon) {
@@ -208,8 +208,8 @@ class OrderTokens
                 ],
                 'discount_category' => 'coupon'
             ];
+            return $discount;
         }
-        return $discount;
     }
 
     /**
