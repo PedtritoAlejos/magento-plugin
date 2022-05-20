@@ -172,7 +172,7 @@ class OrderTokens
                 'shipping_options' => [
                     'type' => 'delivery'
                 ],
-                'redirect_url' => $domain,
+                'redirect_url' => $domain . 'checkout/onepage/success/',
                 'webhook_urls' => [
                     'notify_order' => $domain . 'rest/V1/orders/notify',
                     'apply_coupon' => $domain . 'duna/set/coupon/order/{order_id}',
