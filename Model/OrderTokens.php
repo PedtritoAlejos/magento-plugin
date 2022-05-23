@@ -71,7 +71,9 @@ class OrderTokens
         StoreManagerInterface $storeManager,
         PriceCurrencyInterface $priceCurrency,
         Category $category,
-        EncryptorInterface $encryptor
+        EncryptorInterface $encryptor,
+        \Magento\SalesRule\Model\Coupon $coupon,
+        \Magento\SalesRule\Model\Rule $saleRule
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->curl = $curl;
@@ -81,6 +83,8 @@ class OrderTokens
         $this->priceCurrency = $priceCurrency;
         $this->category = $category;
         $this->encryptor = $encryptor;
+        $this->coupon = $coupon;
+        $this->saleRule = $saleRule;
     }
 
     /**
@@ -192,11 +196,15 @@ class OrderTokens
     private function getDiscounts($quote)
     {
         $coupon = $quote->getCouponCode();
-
         if ($coupon) {
             $subTotalWithDiscount = $quote->getSubtotalWithDiscount();
             $subTotal = $quote->getSubtotal();
             $couponAmount = $subTotal - $subTotalWithDiscount;
+
+            $ruleId = $this->coupon->loadByCode($coupon)->getRuleId();
+            $rule = $this->saleRule->load($ruleId);
+            $freeShipping = $rule->getSimpleFreeShipping();
+
             $discount = [
                 'amount' => $this->priceFormat($couponAmount),
                 'code' => $coupon,
@@ -204,7 +212,7 @@ class OrderTokens
                 'description' => '',
                 'details_url' => '',
                 'free_shipping' => [
-                    'is_free_shipping' => false,
+                    'is_free_shipping' => (bool) $freeShipping,
                     'maximum_cost_allowed' => 100
                 ],
                 'discount_category' => 'coupon'
