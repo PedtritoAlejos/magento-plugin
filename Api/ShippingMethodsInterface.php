@@ -4,11 +4,10 @@ namespace DUna\Payments\Api;
 
 interface ShippingMethodsInterface
 {
+
     /**
-     * Loads shipping methods.
-     *
-     * @params int $cartId
-     * @return array
+     * @param int $cartId
+     * @return mixed
      */
     public function get(int $cartId);
 

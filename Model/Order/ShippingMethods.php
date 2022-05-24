@@ -102,10 +102,8 @@ class ShippingMethods implements ShippingMethodsInterface
     }
 
     /**
-     * Returns Shipping Methods
-     *
-     * @params int $cartId
-     * @return array
+     * @param int $cartId
+     * @return array|void
      * @throws NoSuchEntityException
      */
     public function get(int $cartId)
