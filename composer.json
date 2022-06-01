@@ -1,0 +1,15 @@
+{
+    "name": "deuna/magento",
+    "description": "DEUNA Checkout for Magento",
+    "require": {
+        "php": ">=7.4"
+    },
+    "license": "MIT",
+    "repositories": {
+        "private-packagist": {
+            "type": "composer",
+            "url": "https://repo.packagist.com/deuna/"
+        },
+        "packagist.org": false
+    }
+}
