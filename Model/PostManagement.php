@@ -6,8 +6,8 @@ use Psr\Log\LoggerInterface;
 use DUna\Payments\Model\OrderTokens;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Quote\Model\QuoteFactory;
-
-
+use Magento\Quote\Model\QuoteFactory as Quote;
+use Magento\Quote\Api\CartRepositoryInterface as CRI;
 
 class PostManagement {
 
@@ -36,18 +36,25 @@ class PostManagement {
      */
     protected $quoteFactory;
 
+    protected $quoteModel;
+    protected $cri;
+
     public function __construct(
         Request $request,
         LoggerInterface $logger,
         QuoteManagement $quoteManagement,
         QuoteFactory $quoteFactory,
-        OrderTokens $orderTokens
+        OrderTokens $orderTokens,
+        Quote $quoteModel,
+        CRI $cri
     ) {
         $this->request = $request;
         $this->logger = $logger;
         $this->quoteManagement = $quoteManagement;
         $this->quoteFactory = $quoteFactory;
         $this->orderTokens = $orderTokens;
+        $this->quoteModel = $quoteModel;
+        $this->cri = $cri;
     }
 
     /**
@@ -57,11 +64,22 @@ class PostManagement {
     {
         $bodyReq = $this->request->getBodyParams();
         $order = $bodyReq['order'];
-        $orderid = $order['order_id'];
+        $payment_status = $order['payment_status'];
 
         $quote = $this->quotePrepare($order);
         if ($quote) {
-            $order = $this->quoteManagement->submit($quote);
+            $active = $quote->getIsActive();
+            if ($active) {
+                $order = $this->quoteManagement->submit($quote);
+            } else {
+                $order = ['success'];
+            }
+        }
+
+        if ($payment_status == 'processed') {
+            $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING, true)
+                ->setStatus(\Magento\Sales\Model\Order::STATE_PROCESSING);
+            $order->save();
         }
 
         return json_encode($order);
@@ -75,7 +93,7 @@ class PostManagement {
     {
         $quoteId = $order['order_id'];
         $email = $order['payment']['data']['customer']['email'];
-        $quote = $this->quoteFactory->create()->load($quoteId);
+        $quote = $this->cri->get($quoteId);
         $quote->getPayment()->setMethod('duna_payments');
 
         $shippingAddress = $quote->getShippingAddress();
