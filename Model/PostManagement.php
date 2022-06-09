@@ -8,6 +8,7 @@ use Magento\Quote\Model\QuoteManagement;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Quote\Model\QuoteFactory as Quote;
 use Magento\Quote\Api\CartRepositoryInterface as CRI;
+use DUna\Payments\Helper\Data;
 
 class PostManagement {
 
@@ -39,6 +40,11 @@ class PostManagement {
     protected $quoteModel;
     protected $cri;
 
+    /**
+     * @var Data
+     */
+    protected $helper;
+
     public function __construct(
         Request $request,
         LoggerInterface $logger,
@@ -46,7 +52,8 @@ class PostManagement {
         QuoteFactory $quoteFactory,
         OrderTokens $orderTokens,
         Quote $quoteModel,
-        CRI $cri
+        CRI $cri,
+        Data $helper
     ) {
         $this->request = $request;
         $this->logger = $logger;
@@ -55,6 +62,7 @@ class PostManagement {
         $this->orderTokens = $orderTokens;
         $this->quoteModel = $quoteModel;
         $this->cri = $cri;
+        $this->helper = $helper;
     }
 
     /**
