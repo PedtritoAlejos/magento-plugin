@@ -63,6 +63,7 @@ class PostManagement {
     public function notify()
     {
         $bodyReq = $this->request->getBodyParams();
+        $this->helper->log('debug', 'Notify New Order:', $bodyReq);
         $order = $bodyReq['order'];
         $payment_status = $order['payment_status'];
 
