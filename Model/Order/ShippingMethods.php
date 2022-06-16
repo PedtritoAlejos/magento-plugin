@@ -156,37 +156,17 @@ class ShippingMethods implements ShippingMethodsInterface
         $shippingAmount = 0;
         foreach ($shippingRates as $shippingMethod) {
             if ($shippingMethod->getMethodCode() == $code) {
+                $shippingAddress = $quote->getShippingAddress();
+                $shippingAddress->setShippingMethod($shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode());
+                $shippingAddress->setShippingDescription($shippingMethod->getCarrierTitle() . ' - ' . $shippingMethod->getMethodTitle());
+                $shippingAddress->setCollectShippingRates(true);
+                $shippingAddress->save();
+                $quote->setShippingAddress($shippingAddress);
                 $shippingAmount = $this->orderTokens->priceFormat($shippingMethod->getAmount());
                 break;
             }
         }
-
-        $order = $this->orderTokens->getBody($quote);
-        $order['order']['shipping_address'] = [
-            'id' => 0,
-            'user_id' => (string) 0,
-            'first_name' => 'test',
-            'last_name' => 'test',
-            'phone' => '8677413045',
-            'identity_document' => '',
-            'lat' => 0,
-            'lng' => 0,
-            'address_1' => 'test',
-            'address_2' => 'test',
-            'city' => 'test',
-            'zipcode' => 'test',
-            'state_name' => 'test',
-            'country_code' => 'test',
-            'additional_description' => '',
-            'address_type' => '',
-            'is_default' => false,
-            'created_at' => '',
-            'updated_at' => '',
-        ];
-        $order['order']['status'] = 'pending';
-        $order['order']['shipping_amount'] = $shippingAmount;
-        $order['order']['total_amount'] += $shippingAmount;
-
+        $order = $this->orderTokens->getBody($quote, $shippingAmount);
         return $this->getJson($order);
     }
 
