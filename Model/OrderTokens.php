@@ -158,7 +158,7 @@ class OrderTokens
      */
     public function getBody($quote): array
     {
-        $totals = $this->priceFormat($quote->getGrandTotal());
+        $totals = $this->priceFormat($quote->getSubtotalWithDiscount());
         $domain = $this->storeManager->getStore()->getBaseUrl();
         $discounts = $this->getDiscounts($quote);
         $body = [
