@@ -152,8 +152,6 @@ class ShippingMethods implements ShippingMethodsInterface
 
         // Get Shipping Rates
         $shippingRates = $this->getShippingRates($quote);
-
-        $shippingAmount = 0;
         foreach ($shippingRates as $shippingMethod) {
             if ($shippingMethod->getMethodCode() == $code) {
                 $shippingAddress = $quote->getShippingAddress();
@@ -162,11 +160,10 @@ class ShippingMethods implements ShippingMethodsInterface
                 $shippingAddress->setCollectShippingRates(true);
                 $shippingAddress->save();
                 $quote->setShippingAddress($shippingAddress);
-                $shippingAmount = $this->orderTokens->priceFormat($shippingMethod->getAmount());
                 break;
             }
         }
-        $order = $this->orderTokens->getBody($quote, $shippingAmount);
+        $order = $this->orderTokens->getBody($quote);
         return $this->getJson($order);
     }
 

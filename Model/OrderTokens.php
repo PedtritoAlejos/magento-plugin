@@ -156,7 +156,7 @@ class OrderTokens
     /**
      * @return array
      */
-    public function getBody($quote, $shippingAmount = null): array
+    public function getBody($quote): array
     {
         $totals = $this->priceFormat($quote->getGrandTotal());
         $domain = $this->storeManager->getStore()->getBaseUrl();
@@ -186,10 +186,7 @@ class OrderTokens
                 ]
             ]
         ];
-        if ($shippingAmount) {
-            $body = $this->getShippingData($body, $shippingAmount);
-        }
-        return $body;
+        return $this->getShippingData($body, $quote);
     }
 
     /**
@@ -296,8 +293,11 @@ class OrderTokens
      * @param $shippingAmount
      * @return array
      */
-    private function getShippingData($order, $shippingAmount)
+    private function getShippingData($order, $quote)
     {
+        $shippingAddress = $quote->getShippingAddress();
+        $shippingMethod = $shippingAddress->getShippingMethod();
+        $shippingAmount = $this->priceFormat($shippingAddress->getShippingAmount());
         $order['order']['shipping_address'] = [
             'id' => 0,
             'user_id' => (string) 0,
