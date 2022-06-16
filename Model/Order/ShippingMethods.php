@@ -202,7 +202,7 @@ class ShippingMethods implements ShippingMethodsInterface
         $shippingAddress->setCity($body['city']);
         $shippingAddress->setPostcode($body['zipcode']);
         $shippingAddress->setCountryId($body['country_iso']);
-        $shippingAddress->setRegionId(941);
+        $shippingAddress->setRegion($body['state_name']);
         $shippingAddress->save();
 
         $billingAddress = $quote->getBillingAddress();
@@ -213,7 +213,8 @@ class ShippingMethods implements ShippingMethodsInterface
         $billingAddress->setCity($body['city']);
         $billingAddress->setPostcode($body['zipcode']);
         $billingAddress->setCountryId($body['country_iso']);
-        $billingAddress->setRegionId(941);
+        $billingAddress->setRegionId(0);
+        $billingAddress->setRegion($body['state_name']);
         $billingAddress->save();
 
     }
