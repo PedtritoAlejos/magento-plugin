@@ -152,41 +152,18 @@ class ShippingMethods implements ShippingMethodsInterface
 
         // Get Shipping Rates
         $shippingRates = $this->getShippingRates($quote);
-
-        $shippingAmount = 0;
         foreach ($shippingRates as $shippingMethod) {
             if ($shippingMethod->getMethodCode() == $code) {
-                $shippingAmount = $this->orderTokens->priceFormat($shippingMethod->getAmount());
+                $shippingAddress = $quote->getShippingAddress();
+                $shippingAddress->setShippingMethod($shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode());
+                $shippingAddress->setShippingDescription($shippingMethod->getCarrierTitle() . ' - ' . $shippingMethod->getMethodTitle());
+                $shippingAddress->setCollectShippingRates(true);
+                $shippingAddress->save();
+                $quote->setShippingAddress($shippingAddress);
                 break;
             }
         }
-
         $order = $this->orderTokens->getBody($quote);
-        $order['order']['shipping_address'] = [
-            'id' => 0,
-            'user_id' => (string) 0,
-            'first_name' => 'test',
-            'last_name' => 'test',
-            'phone' => '8677413045',
-            'identity_document' => '',
-            'lat' => 0,
-            'lng' => 0,
-            'address_1' => 'test',
-            'address_2' => 'test',
-            'city' => 'test',
-            'zipcode' => 'test',
-            'state_name' => 'test',
-            'country_code' => 'test',
-            'additional_description' => '',
-            'address_type' => '',
-            'is_default' => false,
-            'created_at' => '',
-            'updated_at' => '',
-        ];
-        $order['order']['status'] = 'pending';
-        $order['order']['shipping_amount'] = $shippingAmount;
-        $order['order']['total_amount'] += $shippingAmount;
-
         return $this->getJson($order);
     }
 
@@ -225,7 +202,7 @@ class ShippingMethods implements ShippingMethodsInterface
         $shippingAddress->setCity($body['city']);
         $shippingAddress->setPostcode($body['zipcode']);
         $shippingAddress->setCountryId($body['country_iso']);
-        $shippingAddress->setRegionId(941);
+        $shippingAddress->setRegion($body['state_name']);
         $shippingAddress->save();
 
         $billingAddress = $quote->getBillingAddress();
@@ -236,7 +213,8 @@ class ShippingMethods implements ShippingMethodsInterface
         $billingAddress->setCity($body['city']);
         $billingAddress->setPostcode($body['zipcode']);
         $billingAddress->setCountryId($body['country_iso']);
-        $billingAddress->setRegionId(941);
+        $billingAddress->setRegionId(0);
+        $billingAddress->setRegion($body['state_name']);
         $billingAddress->save();
 
     }

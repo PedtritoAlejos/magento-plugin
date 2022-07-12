@@ -158,7 +158,7 @@ class OrderTokens
      */
     public function getBody($quote): array
     {
-        $totals = $this->priceFormat($quote->getGrandTotal());
+        $totals = $this->priceFormat($quote->getSubtotalWithDiscount());
         $domain = $this->storeManager->getStore()->getBaseUrl();
         $discounts = $this->getDiscounts($quote);
         $body = [
@@ -186,7 +186,7 @@ class OrderTokens
                 ]
             ]
         ];
-        return $body;
+        return $this->getShippingData($body, $quote);
     }
 
     /**
@@ -274,18 +274,55 @@ class OrderTokens
                 'brand' => '',
                 'manufacturer' => '',
                 'category' => $this->getCategory($item),
-                'color' => '', # Confirmar con DUna
-                'size' => '', # Confirmar con DUna
+                'color' => '',
+                'size' => '',
                 'weight' => [
                     'weight' => $this->priceFormat($item->getWeight(), 2, '.', ''),
                     'unit' => $this->getWeightUnit()
                 ],
                 'image_url' => $this->getImageUrl($item),
                 'type' => ($item->getIsVirtual() ? 'virtual' : 'physical'),
-                'taxable' => true # Confirmar con DUna
+                'taxable' => true
             ];
         }
         return $itemsList;
+    }
+
+    /**
+     * @param $order
+     * @param $shippingAmount
+     * @return array
+     */
+    private function getShippingData($order, $quote)
+    {
+        $shippingAddress = $quote->getShippingAddress();
+        $shippingMethod = $shippingAddress->getShippingMethod();
+        $shippingAmount = $this->priceFormat($shippingAddress->getShippingAmount());
+        $order['order']['shipping_address'] = [
+            'id' => 0,
+            'user_id' => (string) 0,
+            'first_name' => 'test',
+            'last_name' => 'test',
+            'phone' => '8677413045',
+            'identity_document' => '',
+            'lat' => 0,
+            'lng' => 0,
+            'address_1' => 'test',
+            'address_2' => 'test',
+            'city' => 'test',
+            'zipcode' => 'test',
+            'state_name' => 'test',
+            'country_code' => 'test',
+            'additional_description' => '',
+            'address_type' => '',
+            'is_default' => false,
+            'created_at' => '',
+            'updated_at' => '',
+        ];
+        $order['order']['status'] = 'pending';
+        $order['order']['shipping_amount'] = $shippingAmount;
+        $order['order']['total_amount'] += $shippingAmount;
+        return $order;
     }
 
     /**

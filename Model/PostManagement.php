@@ -96,7 +96,8 @@ class PostManagement {
 
     /**
      * @param $order
-     * @return \Magento\Quote\Model\Quote
+     * @return \Magento\Quote\Api\Data\CartInterface
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     private function quotePrepare($order)
     {
@@ -104,26 +105,7 @@ class PostManagement {
         $email = $order['payment']['data']['customer']['email'];
         $quote = $this->cri->get($quoteId);
         $quote->getPayment()->setMethod('duna_payments');
-
-        $shippingAddress = $quote->getShippingAddress();
-        $billingAddress = $quote->getBillingAddress();
-        $shippingAddress->setRegionId(941);
-        $shippingAddress->setShippingMethod('freeshipping');
-        $shippingAddress->setShippingDescription('Free Shipping - Free');
-        $billingAddress->setShippingMethod('freeshipping');
-        $shippingAddress->setCollectShippingRates(true);
-        $shippingAddress->save();
-
-
-        $quote->getShippingAddress()->setShippingMethod('freeshipping_freeshipping');
-
-        $quote->setShippingAddress($shippingAddress);
-
-        $quote->setCustomerId(null);
         $quote->setCustomerEmail($email);
-        $quote->setCustomerIsGuest(true);
-        $quote->setCustomerGroupId(\Magento\Customer\Api\Data\GroupInterface::NOT_LOGGED_IN_ID);
-
         return $quote;
     }
 
