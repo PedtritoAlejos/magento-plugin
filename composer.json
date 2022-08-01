@@ -1,7 +1,6 @@
 {
     "name": "deuna/magento",
     "description": "DEUNA Checkout for Magento",
-    "version": "1.0.0",
     "type":"magento2-module",
     "keywords": [
         "checkout",
@@ -9,7 +8,7 @@
     ],
     "homepage": "https://deuna.com",
     "require": {
-        "php": "~7.3.0||~7.4.0"
+        "php": ">=7.4.0"
     },
     "license": "proprietary",
     "minimum-stability": "dev",
@@ -32,7 +31,7 @@
     ],
     "extra": {
         "branch-alias": {
-            "dev-main": "1.0.0"
+            "dev-main": "1.0.0-dev"
         }
     }
 }
