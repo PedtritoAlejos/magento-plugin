@@ -28,6 +28,10 @@
         {
             "type": "composer",
             "url": "https://repo.packagist.com/deuna/"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/DUNA-E-Commmerce/magento-plugin"
         }
     ]
 }
