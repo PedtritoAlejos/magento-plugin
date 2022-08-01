@@ -1,42 +1,44 @@
 {
-    "name": "deuna/magento",
-    "description": "DEUNA Checkout for Magento",
-    "version": "1.0.0",
-    "type":"magento2-module",
-    "keywords": [
-        "checkout",
-        "deuna"
-    ],
-    "homepage": "https://deuna.com",
-    "require": {
-        "php": "~7.3.0||~7.4.0"
-    },
-    "license": "proprietary",
-    "minimum-stability": "dev",
-    "prefer-stable": true,
-    "authors": [
-        {
-            "name": "DEUNA",
-            "email": "developers@getduna.com",
-            "homepage": "http://deuna.com"
-        }
-    ],
-    "repositories": [
-        {
-            "packagist.org": false
+    "package": {
+        "name": "deuna/magento",
+        "description": "DEUNA Checkout for Magento",
+        "version": "1.0.0",
+        "type":"magento2-module",
+        "keywords": [
+            "checkout",
+            "deuna"
+        ],
+        "homepage": "https://deuna.com",
+        "require": {
+            "php": "~7.3.0||~7.4.0"
         },
-        {
-            "type": "composer",
-            "url": "https://repo.packagist.com/deuna/"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/DUNA-E-Commmerce/magento-plugin"
-        }
-    ],
-    "extra": {
-        "branch-alias": {
-            "dev-main": "0.1.0"
+        "license": "proprietary",
+        "minimum-stability": "dev",
+        "prefer-stable": true,
+        "authors": [
+            {
+                "name": "DEUNA",
+                "email": "developers@getduna.com",
+                "homepage": "http://deuna.com"
+            }
+        ],
+        "repositories": [
+            {
+                "packagist.org": false
+            },
+            {
+                "type": "composer",
+                "url": "https://repo.packagist.com/deuna/"
+            },
+            {
+                "type": "vcs",
+                "url": "https://github.com/DUNA-E-Commmerce/magento-plugin"
+            }
+        ],
+        "extra": {
+            "branch-alias": {
+                "dev-main": "0.1.0"
+            }
         }
     }
 }
