@@ -28,7 +28,7 @@
         },
         {
             "packagist.org": false
-        },
+        }
     ],
     "extra": {
         "branch-alias": {
