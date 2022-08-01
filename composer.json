@@ -33,5 +33,10 @@
             "type": "git",
             "url": "https://github.com/DUNA-E-Commmerce/magento-plugin"
         }
-    ]
+    ],
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.0.x-dev"
+        }
+    }
 }
