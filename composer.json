@@ -13,6 +13,7 @@
     },
     "license": "proprietary",
     "minimum-stability": "dev",
+    "prefer-stable": true,
     "authors": [
         {
             "name": "DEUNA",
