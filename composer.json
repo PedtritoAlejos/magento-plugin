@@ -30,7 +30,7 @@
             "url": "https://repo.packagist.com/deuna/"
         },
         {
-            "type": "vcs",
+            "type": "github",
             "url": "https://github.com/DUNA-E-Commmerce/magento-plugin"
         }
     ],
