@@ -1,10 +1,10 @@
 <?php
 
-namespace DUna\Payments\Block;
+namespace Deuna\Checkout\Block;
 
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
-use DUna\Payments\Helper\Data;
+use Deuna\Checkout\Helper\Data;
 use Magento\Framework\Encryption\EncryptorInterface;
 
 class Checkout extends Template

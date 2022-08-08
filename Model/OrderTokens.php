@@ -1,6 +1,6 @@
 <?php
 
-namespace DUna\Payments\Model;
+namespace Deuna\Checkout\Model;
 
 use Magento\Checkout\Model\Session;
 use Magento\Framework\HTTP\Adapter\Curl;
@@ -8,7 +8,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\AuthenticationException;
 use Zend_Http_Client;
 use Magento\Framework\Serialize\Serializer\Json;
-use DUna\Payments\Helper\Data;
+use Deuna\Checkout\Helper\Data;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Catalog\Model\Category;

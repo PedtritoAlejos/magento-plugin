@@ -1,14 +1,14 @@
 <?php
-namespace DUna\Payments\Model;
+namespace Deuna\Checkout\Model;
 
 use Magento\Framework\Webapi\Rest\Request;
 use Psr\Log\LoggerInterface;
-use DUna\Payments\Model\OrderTokens;
+use Deuna\Checkout\Model\OrderTokens;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Quote\Model\QuoteFactory as Quote;
 use Magento\Quote\Api\CartRepositoryInterface as CRI;
-use DUna\Payments\Helper\Data;
+use Deuna\Checkout\Helper\Data;
 
 class PostManagement {
 

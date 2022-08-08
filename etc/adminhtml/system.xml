@@ -11,9 +11,9 @@
         <!--CONFIG SECTION-->
         <section id="duna" translate="label" sortOrder="0"
                  showInDefault="1" showInWebsite="1" showInStore="1">
-        <label>D-Una Settings</label>
+        <label>Deuna Settings</label>
         <tab>sales</tab>
-        <resource>DUna_Payments::config_duna</resource>
+        <resource>Deuna_Checkout::config_duna</resource>
 
             <!-- GENERAL -->
             <group id="config" translate="label"
@@ -25,7 +25,7 @@
                 </field>
                 <field id="mode" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Environment</label>
-                    <source_model>DUna\Payments\Model\Config\Source\Sandobox</source_model>
+                    <source_model>Deuna\Checkout\Model\Config\Source\Sandobox</source_model>
                 </field>
                 <field id="private_key_stage" translate="label comment" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Private Key Stage</label>

@@ -1,11 +1,11 @@
 <?php
 
-namespace DUna\Payments\Helper;
+namespace Deuna\Checkout\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Store\Model\ScopeInterface;
-use DUna\Payments\Logger\Logger;
+use Deuna\Checkout\Logger\Logger;
 
 class Data extends AbstractHelper
 {

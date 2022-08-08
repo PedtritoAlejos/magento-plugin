@@ -1,6 +1,6 @@
 <?php
 
-namespace DUna\Payments\Api\Data;
+namespace Deuna\Checkout\Api\Data;
 
 interface CheckoutInterface extends \Magento\Framework\Api\ExtensibleDataInterface
 {

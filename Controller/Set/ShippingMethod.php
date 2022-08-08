@@ -1,10 +1,10 @@
 <?php
 
-namespace DUna\Payments\Controller\Set;
+namespace Deuna\Checkout\Controller\Set;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use DUna\Payments\Api\ShippingMethodsInterface;
+use Deuna\Checkout\Api\ShippingMethodsInterface;
 
 class ShippingMethod extends Action
 {

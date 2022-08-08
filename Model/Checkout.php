@@ -1,16 +1,16 @@
 <?php
 
-namespace DUna\Payments\Model;
+namespace Deuna\Checkout\Model;
 
 use Magento\Framework\Exception\NoSuchEntityException;
-use DUna\Payments\Api\ShippingMethodsInterface;
+use Deuna\Checkout\Api\ShippingMethodsInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Webapi\Rest\Request;
-use DUna\Payments\Helper\Data;
+use Deuna\Checkout\Helper\Data;
 use Magento\Framework\Controller\Result\JsonFactory;
-use DUna\Payments\Model\OrderTokens;
+use Deuna\Checkout\Model\OrderTokens;
 use Magento\Framework\Serialize\Serializer\Json;
-use DUna\Payments\Api\CheckoutInterface;
+use Deuna\Checkout\Api\CheckoutInterface;
 
 
 class Checkout implements CheckoutInterface

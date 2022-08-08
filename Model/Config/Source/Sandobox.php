@@ -1,6 +1,6 @@
 <?php
 
-namespace DUna\Payments\Model\Config\Source;
+namespace Deuna\Checkout\Model\Config\Source;
 
 use Magento\Framework\Option\ArrayInterface;
 

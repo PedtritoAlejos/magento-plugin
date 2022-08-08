@@ -1,6 +1,6 @@
 <?php
 
-namespace DUna\Payments\Plugin\Checkout;
+namespace Deuna\Payments\Plugin\Checkout;
 
 use \Magento\Framework\Exception\NotFoundException;
 
@@ -19,12 +19,12 @@ class Index
     /**
      * @param \Magento\Framework\App\Action\Context $context
      * @param \Magento\Framework\UrlInterface $url
-     * @param \DUna\Payments\Helper\Data $helperData
+     * @param \Deuna\Checkout\Helper\Data $helperData
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\UrlInterface $url,
-        \DUna\Payments\Helper\Data $helperData
+        \Deuna\Checkout\Helper\Data $helperData
     ) {
         $this->resultRedirectFactory = $context->getResultRedirectFactory();
         $this->resultFactory = $context->getResultFactory();

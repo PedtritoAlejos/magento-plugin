@@ -1,6 +1,6 @@
 <?php
 
-namespace DUna\Payments\Logger;
+namespace Deuna\Checkout\Logger;
 
 class Logger extends \Monolog\Logger
 {

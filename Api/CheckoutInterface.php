@@ -1,7 +1,7 @@
 <?php
 
 
-namespace DUna\Payments\Api;
+namespace Deuna\Checkout\Api;
 /**
  * CheckoutInterface
  *

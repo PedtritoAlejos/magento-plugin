@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <type name="Magento\Checkout\Controller\Index\Index">
-        <plugin name="hideCheckout" type="DUna\Payments\Plugin\Checkout\Index" disabled="false"/>
+        <plugin name="hideCheckout" type="Deuna\Checkout\Plugin\Checkout\Index" disabled="false"/>
     </type>
-    <preference for="DUna\Payments\Api\CheckoutInterface" type="DUna\Payments\Model\Checkout" />
-    <preference for="DUna\Payments\Api\PostManagementInterface" type="DUna\Payments\Model\PostManagement"/>
-    <preference for="DUna\Payments\Api\ShippingMethodsInterface" type="DUna\Payments\Model\Order\ShippingMethods"/>
+    <preference for="Deuna\Checkout\Api\CheckoutInterface" type="Deuna\Checkout\Model\Checkout" />
+    <preference for="Deuna\Checkout\Api\PostManagementInterface" type="Deuna\Checkout\Model\PostManagement"/>
+    <preference for="Deuna\Checkout\Api\ShippingMethodsInterface" type="DUna\Checkout\Model\Order\ShippingMethods"/>
     <!-- Custom Logger -->
-    <type name="DUna\Payments\Logger\Logger">
+    <type name="Deuna\Checkout\Logger\Logger">
         <arguments>
-            <argument name="name" xsi:type="string">DUnaPayments</argument>
+            <argument name="name" xsi:type="string">DeunaCheckout</argument>
             <argument name="handlers"  xsi:type="array">
-                <item name="system" xsi:type="object">DUna\Payments\Logger\Handler</item>
+                <item name="system" xsi:type="object">Deuna\Checkout\Logger\Handler</item>
             </argument>
         </arguments>
     </type>
