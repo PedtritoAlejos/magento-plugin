@@ -33,5 +33,13 @@
         "branch-alias": {
             "dev-main": "1.0.0-dev"
         }
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "DEUNA\\Payments\\": ""
+        }
     }
 }
