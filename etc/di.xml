@@ -10,7 +10,7 @@
     <type name="Deuna\Checkout\Logger\Logger">
         <arguments>
             <argument name="name" xsi:type="string">DeunaCheckout</argument>
-            <argument name="handlers"  xsi:type="array">
+            <argument name="handlers" xsi:type="array">
                 <item name="system" xsi:type="object">Deuna\Checkout\Logger\Handler</item>
             </argument>
         </arguments>

@@ -3,13 +3,12 @@ define([
     'uiComponent',
     'ko',
     'mage/url',
-    'DeunaCDL',
-    'DunaCheckout',
-], function ($, Component, ko, Url, DeunaCDL, DunaCheckout) {
+    'DeunaCheckout',
+], function ($, Component, ko, Url, DunaCheckout) {
     'use strict';
     return Component.extend({
         defaults: {
-            template: 'DUna_Payments/widget',
+            template: 'Deuna_Checkout/widget',
             dunaCheckout: DunaCheckout(),
             hasEnable: ko.observable(true)
         },
@@ -26,7 +25,7 @@ define([
         },
         show: function () {
             const self = this,
-                  tokenUrl = Url.build('rest/V1/DUna/token');
+                  tokenUrl = Url.build('rest/v1/deuna/token');
             this.preventClick();
             $.ajax({
                 method: 'GET',
