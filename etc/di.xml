@@ -5,7 +5,7 @@
     </type>
     <preference for="Deuna\Checkout\Api\CheckoutInterface" type="Deuna\Checkout\Model\Checkout" />
     <preference for="Deuna\Checkout\Api\PostManagementInterface" type="Deuna\Checkout\Model\PostManagement"/>
-    <preference for="Deuna\Checkout\Api\ShippingMethodsInterface" type="DUna\Checkout\Model\Order\ShippingMethods"/>
+    <preference for="Deuna\Checkout\Api\ShippingMethodsInterface" type="Deuna\Checkout\Model\Order\ShippingMethods"/>
     <!-- Custom Logger -->
     <type name="Deuna\Checkout\Logger\Logger">
         <arguments>
