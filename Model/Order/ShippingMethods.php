@@ -3,7 +3,7 @@
 namespace Deuna\Checkout\Model\Order;
 
 use Magento\Framework\Exception\NoSuchEntityException;
-use Deuna\Checkout\Api\ShippingMethodsInterface;
+use \Deuna\Checkout\Api\ShippingMethodsInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Webapi\Rest\Request;
 use Deuna\Checkout\Helper\Data;
