@@ -4,7 +4,7 @@ namespace Deuna\Checkout\Controller\Set;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use Deuna\Checkout\Api\ShippingMethodsInterface;
+use \Deuna\Checkout\Api\ShippingMethodsInterface;
 
 class ShippingMethod extends Action
 {
