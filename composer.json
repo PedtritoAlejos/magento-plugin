@@ -11,5 +11,13 @@
             "url": "https://repo.packagist.com/deuna/"
         },
         "packagist.org": false
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "DUna\\Payments\\": ""
+        }
     }
 }
