@@ -39,7 +39,7 @@
             "registration.php"
         ],
         "psr-4": {
-            "DEUNA\\Payments\\": ""
+            "DEUNA\\Checkout\\": ""
         }
     }
 }
