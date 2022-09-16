@@ -7,6 +7,8 @@ define([
     'DunaCheckout',
 ], function ($, Component, ko, Url, DeunaCDL, DunaCheckout) {
     'use strict';
+    window.DeunaCDL = DeunaCDL;
+
     return Component.extend({
         defaults: {
             template: 'DUna_Payments/widget',
