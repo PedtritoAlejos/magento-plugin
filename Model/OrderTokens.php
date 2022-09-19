@@ -5,7 +5,6 @@ namespace DUna\Payments\Model;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\HTTP\Adapter\Curl;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\AuthenticationException;
 use Zend_Http_Client;
 use Magento\Framework\Serialize\Serializer\Json;
 use DUna\Payments\Helper\Data;
@@ -146,11 +145,15 @@ class OrderTokens
 
         $response = $this->json->unserialize($response);
 
-        if (!empty($response['code'])) {
-            throw new LocalizedException(__('Error returned with request to ' . $url . '. Code: ' . $response['code'] . ' Error: ' . $response['message']));
-        }
+        if(!empty($response['error'])) {
+            return $response['error'];
+        } else {
+            if (!empty($response['code'])) {
+                throw new LocalizedException(__('Error returned with request to ' . $url . '. Code: ' . $response['code'] . ' Error: ' . $response['message']));
+            }
 
-        return $response['token'];
+            return $response['token'];
+        }
     }
 
     /**
@@ -167,7 +170,7 @@ class OrderTokens
                 'currency' => $quote->getCurrency()->getQuoteCurrencyCode(),
                 'tax_amount' => $this->priceFormat($quote->getCustomerTaxvat()),
                 'items_total_amount' => $totals,
-                'sub_total' => $totals,
+                'sub_total' => $this->priceFormat($quote->getSubtotal()),
                 'total_amount' => $totals,
                 'total_discount' => $this->getDiscountAmount($quote),
                 'store_code' => 'all', //$this->storeManager->getStore()->getCode(),
@@ -332,7 +335,8 @@ class OrderTokens
     public function priceFormat($price): int
     {
         $priceFix = number_format(is_null($price) ? 0 : $price, 2, '.', '');
-        return $priceFix * 100;
+
+        return (int) round($priceFix * 100, 1 , PHP_ROUND_HALF_UP);;
     }
 
     /**
