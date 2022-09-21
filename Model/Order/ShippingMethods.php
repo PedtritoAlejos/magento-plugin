@@ -9,7 +9,9 @@ use Magento\Framework\Webapi\Rest\Request;
 use DUna\Payments\Helper\Data;
 use Magento\Framework\Controller\Result\JsonFactory;
 use DUna\Payments\Model\OrderTokens;
+use Magento\Framework\Exception\StateException;
 use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Directory\Model\ResourceModel\Region\CollectionFactory;
 
 
 /**
@@ -65,6 +67,11 @@ class ShippingMethods implements ShippingMethodsInterface
     private $orderTokens;
 
     /**
+     * @var Collection
+     */
+    private $regionCollectionFactory;
+
+    /**
      * @var Json
      */
     private $json;
@@ -85,7 +92,8 @@ class ShippingMethods implements ShippingMethodsInterface
         JsonFactory $resultJsonFactory,
         Request $request,
         Json $json,
-        OrderTokens $orderTokens
+        OrderTokens $orderTokens,
+        CollectionFactory $regionCollectionFactory
     ) {
         $this->quoteRepository = $quoteRepository;
         $this->converter = $converter;
@@ -99,6 +107,7 @@ class ShippingMethods implements ShippingMethodsInterface
         $this->request = $request;
         $this->json = $json;
         $this->orderTokens = $orderTokens;
+        $this->regionCollectionFactory = $regionCollectionFactory;
     }
 
     /**
@@ -135,7 +144,9 @@ class ShippingMethods implements ShippingMethodsInterface
                 'max_delivery_date' => ''
             ];
         }
+
         $this->helper->log('debug', 'Shipping Methods:', $shippingMethods);
+
         die($this->json->serialize($shippingMethods));
     }
 
@@ -152,6 +163,7 @@ class ShippingMethods implements ShippingMethodsInterface
 
         // Get Shipping Rates
         $shippingRates = $this->getShippingRates($quote);
+
         foreach ($shippingRates as $shippingMethod) {
             if ($shippingMethod->getMethodCode() == $code) {
                 $shippingAddress = $quote->getShippingAddress();
@@ -159,11 +171,15 @@ class ShippingMethods implements ShippingMethodsInterface
                 $shippingAddress->setShippingDescription($shippingMethod->getCarrierTitle() . ' - ' . $shippingMethod->getMethodTitle());
                 $shippingAddress->setCollectShippingRates(true);
                 $shippingAddress->save();
+
                 $quote->setShippingAddress($shippingAddress);
+
                 break;
             }
         }
+
         $order = $this->orderTokens->getBody($quote);
+
         return $this->getJson($order);
     }
 
@@ -174,25 +190,37 @@ class ShippingMethods implements ShippingMethodsInterface
     private function getShippingRates($quote)
     {
         $quote->collectTotals();
+
         $shippingAddress = $quote->getShippingAddress();
+
         if (!$shippingAddress->getCountryId()) {
             throw new StateException(__('The shipping address is missing. Set the address and try again.'));
         }
+
         $shippingAddress->setCollectShippingRates(true);
         $shippingAddress->collectShippingRates();
         $shippingAddress->save();
         $shippingRates = $shippingAddress->getGroupedAllShippingRates();
+
         foreach ($shippingRates as $carrierRates) {
             foreach ($carrierRates as $rate) {
                 $output[] = $this->converter->modelToDataObject($rate, $quote->getQuoteCurrencyCode());
             }
         }
+
         return $output;
     }
 
     private function setShippingInfo($quote)
     {
         $body = $this->request->getBodyParams();
+
+        $region = $this->regionCollectionFactory->create()
+                  ->addRegionNameFilter($body['state_name'])
+                  ->getFirstItem()
+                  ->toArray();
+
+        $regionId = empty($region) ? 0 : $region['region_id'];
 
         $shippingAddress = $quote->getShippingAddress();
         $shippingAddress->setFirstname($body['first_name']);
@@ -202,7 +230,7 @@ class ShippingMethods implements ShippingMethodsInterface
         $shippingAddress->setCity($body['city']);
         $shippingAddress->setPostcode($body['zipcode']);
         $shippingAddress->setCountryId($body['country_iso']);
-        $shippingAddress->setRegion($body['state_name']);
+        $shippingAddress->setRegionId($regionId);
         $shippingAddress->save();
 
         $billingAddress = $quote->getBillingAddress();
@@ -213,8 +241,7 @@ class ShippingMethods implements ShippingMethodsInterface
         $billingAddress->setCity($body['city']);
         $billingAddress->setPostcode($body['zipcode']);
         $billingAddress->setCountryId($body['country_iso']);
-        $billingAddress->setRegionId(0);
-        $billingAddress->setRegion($body['state_name']);
+        $billingAddress->setRegionId($regionId);
         $billingAddress->save();
 
     }
@@ -311,7 +338,9 @@ class ShippingMethods implements ShippingMethodsInterface
     private function getJson($data)
     {
         $json = $this->resultJsonFactory->create();
+
         $json->setData($data);
+
         return $json;
     }
 }

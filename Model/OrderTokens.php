@@ -146,14 +146,18 @@ class OrderTokens
         $response = $this->json->unserialize($response);
 
         if(!empty($response['error'])) {
-            return $response['error'];
-        } else {
-            if (!empty($response['code'])) {
-                throw new LocalizedException(__('Error returned with request to ' . $url . '. Code: ' . $response['code'] . ' Error: ' . $response['message']));
-            }
+            $error = $response['error'];
 
-            return $response['token'];
+            $this->helper->log('debug', 'Error on DEUNA Token', [$error]);
+
+            throw new LocalizedException(__('Error returned with request to ' . $url . '. Code: ' . $error['code'] . ' Error: ' . $error['description']));
         }
+
+        if (!empty($response['code'])) {
+            throw new LocalizedException(__('Error returned with request to ' . $url . '. Code: ' . $response['code'] . ' Error: ' . $response['message']));
+        }
+
+        return $response['token'];
     }
 
     /**
@@ -379,9 +383,12 @@ class OrderTokens
     private function tokenize(): string
     {
         $quote = $this->checkoutSession->getQuote();
+
         $body = $this->json->serialize($this->getBody($quote));
         $body = json_encode($this->getBody($quote));
+
         $this->helper->log('debug', 'Json to Tokenize:', [$body]);
+
         return $this->request($body);
     }
 
@@ -393,6 +400,7 @@ class OrderTokens
     {
         $token = $this->tokenize();
         $this->helper->log('debug', 'Token:', [$token]);
+
         return $token;
     }
 }

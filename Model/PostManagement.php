@@ -71,27 +71,32 @@ class PostManagement {
     public function notify()
     {
         $bodyReq = $this->request->getBodyParams();
+
         $this->helper->log('debug', 'Notify New Order:', $bodyReq);
+
         $order = $bodyReq['order'];
         $payment_status = $order['payment_status'];
 
         $quote = $this->quotePrepare($order);
+
         if ($quote) {
             $active = $quote->getIsActive();
+
             if ($active) {
                 $order = $this->quoteManagement->submit($quote);
             } else {
-                $order = ['success'];
+                $order = ['result' => 'success'];
             }
         }
 
         if ($payment_status == 'processed') {
             $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING, true)
-                ->setStatus(\Magento\Sales\Model\Order::STATE_PROCESSING);
+                  ->setStatus(\Magento\Sales\Model\Order::STATE_PROCESSING);
+
             $order->save();
         }
 
-        return json_encode($order);
+        return $order;
     }
 
     /**
@@ -102,10 +107,15 @@ class PostManagement {
     private function quotePrepare($order)
     {
         $quoteId = $order['order_id'];
+
         $email = $order['payment']['data']['customer']['email'];
+
         $quote = $this->cri->get($quoteId);
+
         $quote->getPayment()->setMethod('duna_payments');
+
         $quote->setCustomerEmail($email);
+
         return $quote;
     }
 
@@ -114,7 +124,10 @@ class PostManagement {
      */
     public function getToken()
     {
-        $json = ['orderToken' => $this->orderTokens->getToken()];
+        $json = [
+            'orderToken' => $this->orderTokens->getToken(),
+        ];
+
         return json_encode($json);
     }
 
