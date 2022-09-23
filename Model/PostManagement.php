@@ -76,6 +76,10 @@ class PostManagement {
 
         $order = $bodyReq['order'];
         $payment_status = $order['payment_status'];
+        $token = $order['token'];
+        $paymentProcessor = $order['payment']['data']['processor'];
+        $paymentMethod = $order['payment_method'];
+        $userComment = $order['user_instructions'];
 
         $quote = $this->quotePrepare($order);
 
@@ -84,16 +88,30 @@ class PostManagement {
 
             if ($active) {
                 $order = $this->quoteManagement->submit($quote);
+
+                if ($payment_status == 'processed') {
+                    $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING, true)
+                          ->setStatus(\Magento\Sales\Model\Order::STATE_PROCESSING);
+                }
+
+                if(!empty($userComment)) {
+                    $order->addStatusHistoryComment(
+                        "Comentario de cliente<br>
+                        <i>{$userComment}</i>"
+                    )->setIsVisibleOnFront(true);
+                }
+
+                $order->addStatusHistoryComment(
+                    "Payment Processed by <strong>DEUNA Checkout</strong><br>
+                    <strong>Token:</strong> {$token}<br>
+                    <strong>Payment Method:</strong> {$paymentMethod}<br>
+                    <strong>Processor:</strong> {$paymentProcessor}"
+                );
+
+                $order->save();
             } else {
-                $order = ['result' => 'success'];
+                $order = json_encode(['result' => 'success']);
             }
-        }
-
-        if ($payment_status == 'processed') {
-            $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING, true)
-                  ->setStatus(\Magento\Sales\Model\Order::STATE_PROCESSING);
-
-            $order->save();
         }
 
         return $order;
@@ -112,7 +130,7 @@ class PostManagement {
 
         $quote = $this->cri->get($quoteId);
 
-        $quote->getPayment()->setMethod('duna_payments');
+        $quote->getPayment()->setMethod('deuna_payments');
 
         $quote->setCustomerEmail($email);
 

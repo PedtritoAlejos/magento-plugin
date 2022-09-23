@@ -165,17 +165,25 @@ class OrderTokens
      */
     public function getBody($quote): array
     {
-        $totals = $this->priceFormat($quote->getSubtotalWithDiscount());
+        $totals = $quote->getSubtotalWithDiscount();
         $domain = $this->storeManager->getStore()->getBaseUrl();
+
         $discounts = $this->getDiscounts($quote);
+
+        $tax_amount = $quote->getShippingAddress()->getBaseTaxAmount();
+
+        // $this->helper->log('debug','Taxes:', [$tax_amount]);
+
+        $totals += $tax_amount;
+
         $body = [
             'order' => [
                 'order_id' => $quote->getId(),
                 'currency' => $quote->getCurrency()->getQuoteCurrencyCode(),
-                'tax_amount' => $this->priceFormat($quote->getCustomerTaxvat()),
-                'items_total_amount' => $totals,
+                'tax_amount' => $this->priceFormat($tax_amount),
+                'items_total_amount' => $this->priceFormat($totals),
                 'sub_total' => $this->priceFormat($quote->getSubtotal()),
-                'total_amount' => $totals,
+                'total_amount' => $this->priceFormat($totals),
                 'total_discount' => $this->getDiscountAmount($quote),
                 'store_code' => 'all', //$this->storeManager->getStore()->getCode(),
                 'items' => $this->getItems($quote),
@@ -183,7 +191,7 @@ class OrderTokens
                 'shipping_options' => [
                     'type' => 'delivery'
                 ],
-                'redirect_url' => $domain . 'checkout/onepage/success/',
+                'redirect_url' => $domain . 'checkout/onepage/success',
                 'webhook_urls' => [
                     'notify_order' => $domain . 'rest/V1/orders/notify',
                     'apply_coupon' => $domain . 'duna/set/coupon/order/{order_id}',
@@ -303,7 +311,6 @@ class OrderTokens
     private function getShippingData($order, $quote)
     {
         $shippingAddress = $quote->getShippingAddress();
-        $shippingMethod = $shippingAddress->getShippingMethod();
         $shippingAmount = $this->priceFormat($shippingAddress->getShippingAmount());
         $order['order']['shipping_address'] = [
             'id' => 0,
@@ -385,6 +392,7 @@ class OrderTokens
         $quote = $this->checkoutSession->getQuote();
 
         $body = $this->json->serialize($this->getBody($quote));
+
         $body = json_encode($this->getBody($quote));
 
         $this->helper->log('debug', 'Json to Tokenize:', [$body]);
@@ -399,6 +407,7 @@ class OrderTokens
     public function getToken(): string
     {
         $token = $this->tokenize();
+
         $this->helper->log('debug', 'Token:', [$token]);
 
         return $token;
