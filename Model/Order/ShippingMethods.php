@@ -134,15 +134,31 @@ class ShippingMethods implements ShippingMethodsInterface
         $shippingMethods = [
             'shipping_methods' => []
         ];
+
+        $freeShippingMinAmount = $this->getFreeShippingSubtotal();
+
         foreach ($shippingRates as $method) {
-            $shippingMethods['shipping_methods'][] = [
-                'code' => $method->getMethodCode(),
-                'name' => $method->getMethodTitle(),
-                'cost' => $this->orderTokens->priceFormat($method->getAmount()),
-                'tax_amount' => $method->getPriceInclTax(),
-                'min_delivery_date' => '',
-                'max_delivery_date' => ''
-            ];
+            if($method->getMethodCode() == 'freeshipping') {
+                if($freeShippingMinAmount <= $quote->getSubtotal()) {
+                    $shippingMethods['shipping_methods'][] = [
+                        'code' => $method->getMethodCode(),
+                        'name' => $method->getMethodTitle(),
+                        'cost' => $this->orderTokens->priceFormat($method->getAmount()),
+                        'tax_amount' => $method->getPriceInclTax(),
+                        'min_delivery_date' => '',
+                        'max_delivery_date' => ''
+                    ];
+                }
+            } else {
+                $shippingMethods['shipping_methods'][] = [
+                    'code' => $method->getMethodCode(),
+                    'name' => $method->getMethodTitle(),
+                    'cost' => $this->orderTokens->priceFormat($method->getAmount()),
+                    'tax_amount' => $method->getPriceInclTax(),
+                    'min_delivery_date' => '',
+                    'max_delivery_date' => ''
+                ];
+            }
         }
 
         $this->helper->log('debug', 'Shipping Methods:', $shippingMethods);
@@ -342,5 +358,10 @@ class ShippingMethods implements ShippingMethodsInterface
         $json->setData($data);
 
         return $json;
+    }
+
+    private function getFreeShippingSubtotal()
+    {
+        return $this->_scopeConfig->getValue('carriers/freeshipping/free_shipping_subtotal', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
     }
 }
