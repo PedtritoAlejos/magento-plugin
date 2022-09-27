@@ -75,6 +75,7 @@ class PostManagement {
         $this->helper->log('debug', 'Notify New Order:', $bodyReq);
 
         $order = $bodyReq['order'];
+        $orderId = $bodyReq['order']['order_id'];
         $payment_status = $order['payment_status'];
         $token = $order['token'];
         $paymentProcessor = $order['payment']['data']['processor'];
@@ -106,6 +107,7 @@ class PostManagement {
                 $order->addStatusHistoryComment(
                     "Payment Processed by <strong>DEUNA Checkout</strong><br>
                     <strong>Token:</strong> {$token}<br>
+                    <strong>OrderID:</strong> {$orderId}<br>
                     <strong>Auth Code:</strong> {$authCode}<br>
                     <strong>Payment Method:</strong> {$paymentMethod}<br>
                     <strong>Processor:</strong> {$paymentProcessor}"

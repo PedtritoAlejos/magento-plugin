@@ -91,7 +91,19 @@ class OrderTokens
      */
     private function getUrl(): string
     {
-        return self::URL_STAGING;
+        $env = $this->helper->getEnv();
+
+        switch($env) {
+            case 'production':
+                return self::URL_PRODUCTION;
+                break;
+            case 'staging':
+                return self::URL_STAGING;
+                break;
+            default:
+                return self::URL_STAGING;
+                break;
+        }
     }
 
     /**
@@ -100,6 +112,7 @@ class OrderTokens
     public function getPrivateKey(): string
     {
         $env = $this->helper->getEnv();
+
         if ($env == 'production') {
             $privateKey = $this->helper->getGeneralConfig(self::PRIVATE_KEY_PRODUCTION);
         }
@@ -201,6 +214,7 @@ class OrderTokens
                 ]
             ]
         ];
+
         return $this->getShippingData($body, $quote);
     }
 
