@@ -150,14 +150,16 @@ class ShippingMethods implements ShippingMethodsInterface
                     ];
                 }
             } else {
-                $shippingMethods['shipping_methods'][] = [
-                    'code' => $method->getMethodCode(),
-                    'name' => $method->getMethodTitle(),
-                    'cost' => $this->orderTokens->priceFormat($method->getAmount()),
-                    'tax_amount' => $method->getPriceInclTax(),
-                    'min_delivery_date' => '',
-                    'max_delivery_date' => ''
-                ];
+                if(!is_null($method->getMethodCode())) {
+                    $shippingMethods['shipping_methods'][] = [
+                        'code' => $method->getMethodCode(),
+                        'name' => $method->getMethodTitle(),
+                        'cost' => $this->orderTokens->priceFormat($method->getAmount()),
+                        'tax_amount' => $method->getPriceInclTax(),
+                        'min_delivery_date' => '',
+                        'max_delivery_date' => ''
+                    ];
+                }
             }
         }
 

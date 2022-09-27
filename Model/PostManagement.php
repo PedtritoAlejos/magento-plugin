@@ -78,8 +78,10 @@ class PostManagement {
         $payment_status = $order['payment_status'];
         $token = $order['token'];
         $paymentProcessor = $order['payment']['data']['processor'];
+        $metadata = $order['payment']['data']['metadata'];
         $paymentMethod = $order['payment_method'];
         $userComment = $order['user_instructions'];
+        $authCode = isset($metadata['authorization_code']) ? $metadata['authorization_code'] : 'N/A';
 
         $quote = $this->quotePrepare($order);
 
@@ -104,6 +106,7 @@ class PostManagement {
                 $order->addStatusHistoryComment(
                     "Payment Processed by <strong>DEUNA Checkout</strong><br>
                     <strong>Token:</strong> {$token}<br>
+                    <strong>Auth Code:</strong> {$authCode}<br>
                     <strong>Payment Method:</strong> {$paymentMethod}<br>
                     <strong>Processor:</strong> {$paymentProcessor}"
                 );
