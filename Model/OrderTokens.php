@@ -275,18 +275,22 @@ class OrderTokens
         $itemsList = [];
         foreach ($items as $item) {
             if ($item->getParentItem()) continue;
+            $qtyItem = (int) $item->getQty();
+            $totalSpecialItemPrice = $item->getPrice('special_price')*$qtyItem;
+            $totalRegularItemPrice = $item->getProduct()->getPrice('regular_price')*$qtyItem;
             $itemsList[] = [
                 'id' => $item->getProductId(),
                 'name' => $item->getName(),
                 'description' => $item->getDescription(),
                 'options' => '',
                 'total_amount' => [
-                    'amount' => $this->priceFormat($item->getRowTotal()),
+                    'amount' => $this->priceFormat($totalSpecialItemPrice),
+                    'original_amount' => $this->priceFormat($totalRegularItemPrice),
                     'currency' => $currencyCode,
                     'currency_symbol' => $currencySymbol
                 ],
                 'unit_price' => [
-                    'amount' => $this->priceFormat($item->getPrice()),
+                    'amount' => $this->priceFormat($item->getProduct()->getPrice('regular_price')),
                     'currency' => $currencyCode,
                     'currency_symbol' => $currencySymbol
                 ],
@@ -295,10 +299,10 @@ class OrderTokens
                     'currency' => $currencyCode,
                     'currency_symbol' => $currencySymbol
                 ],
-                'quantity' => (int) $item->getQty(),
+                'quantity' => $qtyItem,
                 'uom' => '',
                 'upc' => '',
-                'sku' => $item->getSku(),
+                'sku' => $item->getProduct()->getSku(),
                 'isbn' => '',
                 'brand' => '',
                 'manufacturer' => '',
@@ -314,6 +318,7 @@ class OrderTokens
                 'taxable' => true
             ];
         }
+
         return $itemsList;
     }
 

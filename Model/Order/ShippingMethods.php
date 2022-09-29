@@ -202,8 +202,16 @@ class ShippingMethods implements ShippingMethodsInterface
 
         $order = $this->orderTokens->getBody($quote);
 
-        $order['order']['shipping_amount'] = $shippingAmount;
-        $order['order']['total_amount'] += $shippingAmount;
+        if(
+            $order['order']['shipping_amount'] !== $shippingAmount ||
+            $order['order']['shipping_amount'] > 0
+        ) {
+            $order['order']['total_amount'] -= $order['order']['shipping_amount'];
+
+            $order['order']['shipping_amount'] = $shippingAmount;
+
+            $order['order']['total_amount'] += $shippingAmount;
+        }
 
         return $this->getJson($order);
     }
