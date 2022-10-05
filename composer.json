@@ -2,7 +2,7 @@
     "name": "deuna/magento",
     "description": "DEUNA Checkout for Magento",
     "require": {
-        "php": ">=8"
+        "php": ">=7.4"
     },
     "version": "1.0.0",
     "license": "MIT",
