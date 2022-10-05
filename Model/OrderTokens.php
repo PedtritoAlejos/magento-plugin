@@ -16,9 +16,9 @@ use Magento\Framework\Encryption\EncryptorInterface;
 class OrderTokens
 {
 
-    CONST URL_PRODUCTION = 'https://apigw.getduna.com/merchants/orders';
-    CONST URL_STAGING = 'https://staging-apigw.getduna.com/merchants/orders';
-    CONST CONTENT_TYPE = 'application/json';
+    const URL_PRODUCTION = 'https://apigw.getduna.com/merchants/orders';
+    const URL_STAGING = 'https://staging-apigw.getduna.com/merchants/orders';
+    const CONTENT_TYPE = 'application/json';
     const PRIVATE_KEY_PRODUCTION = 'private_key_production';
     const PRIVATE_KEY_STAGING = 'private_key_stage';
 
@@ -119,6 +119,7 @@ class OrderTokens
         if ($env == 'staging') {
             $privateKey = $this->helper->getGeneralConfig(self::PRIVATE_KEY_STAGING);
         }
+
         return $this->encryptor->decrypt($privateKey);
     }
 

@@ -4,7 +4,10 @@
     "require": {
         "php": ">=7.4"
     },
+    "version": "1.0.0",
     "license": "MIT",
+    "keywords": ["checkout", "payment"],
+    "homepage": "https://deuna.com",
     "repositories": {
         "private-packagist": {
             "type": "composer",

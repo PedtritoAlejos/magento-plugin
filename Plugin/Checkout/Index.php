@@ -40,7 +40,9 @@ class Index
     public function aroundExecute(\Magento\Checkout\Controller\Index\Index $subject, \Closure $proceed)
     {
         $isModuleEnable = $this->helperData->getGeneralConfig('enable');
+
         $returnDefault = $proceed();
+
         if ($isModuleEnable == '1') {
             $resultRedirect = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
             $norouteUrl = $this->url->getUrl('checkout/cart');
