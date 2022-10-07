@@ -1,6 +1,6 @@
 var config = {
     paths: {
-        DeunaCDL: 'https://cdn.getduna.com/cdl/index',
-        DunaCheckout: 'https://cdn.getduna.com/checkout-widget/index',
+        DeunaCDL: 'https://staging-cdn.getduna.com/cdl/index',
+        DunaCheckout: 'https://staging-cdn.getduna.com/checkout-widget/index',
     }
 };

@@ -137,6 +137,8 @@ class ShippingMethods implements ShippingMethodsInterface
 
         $freeShippingMinAmount = $this->getFreeShippingSubtotal();
 
+        $this->helper->log('debug','Free Shipping Min Amount:', [$freeShippingMinAmount]);
+
         foreach ($shippingRates as $method) {
             if($method->getMethodCode() == 'freeshipping') {
                 if($freeShippingMinAmount <= $quote->getSubtotal()) {
@@ -202,6 +204,8 @@ class ShippingMethods implements ShippingMethodsInterface
 
         $order = $this->orderTokens->getBody($quote);
 
+        $this->helper->log('debug','Shipping Amount:',[$shippingAmount]);
+
         if(
             $order['order']['shipping_amount'] !== $shippingAmount ||
             $order['order']['shipping_amount'] > 0
@@ -212,6 +216,10 @@ class ShippingMethods implements ShippingMethodsInterface
 
             $order['order']['total_amount'] += $shippingAmount;
         }
+
+        $this->helper->log('debug','Order | Tax Amount:', [$order['order']['tax_amount']]);
+        $this->helper->log('debug','Order | Shipping Amount:', [$order['order']['shipping_amount']]);
+        $this->helper->log('debug','Order | Total Amount:', [$order['order']['total_amount']]);
 
         return $this->getJson($order);
     }
