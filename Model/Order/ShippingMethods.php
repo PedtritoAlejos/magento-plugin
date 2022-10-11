@@ -191,14 +191,16 @@ class ShippingMethods implements ShippingMethodsInterface
                 $shippingAddress = $quote->getShippingAddress();
                 $shippingAddress->setShippingMethod($shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode());
                 $shippingAddress->setShippingDescription($shippingMethod->getCarrierTitle() . ' - ' . $shippingMethod->getMethodTitle());
+                $shippingAddress->setShippingAmount($shippingMethod->getAmount());
                 $shippingAddress->setCollectShippingRates(true);
                 $shippingAddress->save();
 
                 $quote->setShippingAddress($shippingAddress);
 
+                // $shippingAmount = $this->orderTokens->priceFormat($shippingAddress->getShippingAmount());
                 $shippingAmount = $this->orderTokens->priceFormat($shippingMethod->getAmount());
 
-                break;
+                break ;
             }
         }
 
@@ -228,7 +230,7 @@ class ShippingMethods implements ShippingMethodsInterface
      * @param $quote
      * @return array
      */
-    private function getShippingRates($quote)
+    public function getShippingRates($quote)
     {
         $quote->collectTotals();
 

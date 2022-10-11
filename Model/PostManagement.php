@@ -53,7 +53,7 @@ class PostManagement {
         OrderTokens $orderTokens,
         Quote $quoteModel,
         CRI $cri,
-        Data $helper
+        Data $helper,
     ) {
         $this->request = $request;
         $this->logger = $logger;
@@ -75,13 +75,15 @@ class PostManagement {
         $this->helper->log('debug', 'Notify New Order:', $bodyReq);
 
         $order = $bodyReq['order'];
-        $orderId = $bodyReq['order']['order_id'];
+        $orderId = $order['order_id'];
         $payment_status = $order['payment_status'];
         $token = $order['token'];
         $paymentProcessor = $order['payment']['data']['processor'];
         $metadata = $order['payment']['data']['metadata'];
         $paymentMethod = $order['payment_method'];
         $userComment = $order['user_instructions'];
+        $shippingAmount = $order['shipping_amount']/100;
+        $totalAmount = $order['total_amount']/100;
         $authCode = isset($metadata['authorization_code']) ? $metadata['authorization_code'] : 'N/A';
 
         $quote = $this->quotePrepare($order);
@@ -95,6 +97,7 @@ class PostManagement {
                 if ($payment_status == 'processed') {
                     $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING, true)
                           ->setStatus(\Magento\Sales\Model\Order::STATE_PROCESSING);
+                    $order->setTotalPaid($totalAmount);
                 }
 
                 if(!empty($userComment)) {
@@ -103,6 +106,11 @@ class PostManagement {
                         <i>{$userComment}</i>"
                     )->setIsVisibleOnFront(true);
                 }
+
+                $order->setShippingAmount($shippingAmount);
+                $order->setBaseShippingAmount($shippingAmount);
+                $order->setGrandTotal($totalAmount);
+                $order->setBaseGrandTotal($totalAmount);
 
                 $order->addStatusHistoryComment(
                     "Payment Processed by <strong>DEUNA Checkout</strong><br>
