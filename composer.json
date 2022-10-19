@@ -1,12 +1,19 @@
 {
     "name": "deuna/magento",
     "description": "DEUNA Checkout for Magento",
+    "authors": [
+        {
+            "name": "DEUNA",
+            "email": "developers@getduna.com",
+            "homepage": "http://deuna.com"
+        }
+    ],
     "require": {
         "php": ">=7.4||<=8"
     },
     "type": "magento2-module",
     "version": "1.0.0",
-    "license": "MIT",
+    "license": "proprietary",
     "keywords": ["checkout", "payment"],
     "homepage": "https://deuna.com",
     "repositories": {
