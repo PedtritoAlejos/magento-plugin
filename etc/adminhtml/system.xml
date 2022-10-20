@@ -11,7 +11,7 @@
         <!--CONFIG SECTION-->
         <section id="duna" translate="label" sortOrder="0"
                  showInDefault="1" showInWebsite="1" showInStore="1">
-        <label>D-Una Settings</label>
+        <label>DEUNA Settings</label>
         <tab>sales</tab>
         <resource>DUna_Payments::config_duna</resource>
 
