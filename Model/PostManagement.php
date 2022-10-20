@@ -53,7 +53,7 @@ class PostManagement {
         OrderTokens $orderTokens,
         Quote $quoteModel,
         CRI $cri,
-        Data $helper,
+        Data $helper
     ) {
         $this->request = $request;
         $this->logger = $logger;
