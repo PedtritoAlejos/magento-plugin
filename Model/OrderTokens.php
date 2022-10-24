@@ -11,6 +11,7 @@ use DUna\Payments\Helper\Data;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Catalog\Model\Category;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Encryption\EncryptorInterface;
 
 class OrderTokens
@@ -181,6 +182,15 @@ class OrderTokens
     {
         $totals = $quote->getSubtotalWithDiscount();
         $domain = $this->storeManager->getStore()->getBaseUrl();
+
+        $objectManager = ObjectManager::getInstance();
+        $cart = $objectManager->get('\Magento\Checkout\Model\Cart');
+        $quo = $cart->getQuote();
+
+        $shippingMethod = $quo->getShippingAddress();
+
+        var_dump($shippingMethod);
+        die();
 
         $discounts = $this->getDiscounts($quote);
 
