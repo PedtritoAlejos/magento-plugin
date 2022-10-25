@@ -1,6 +1,6 @@
 <?php
 
-namespace Deuna\Checkout\Api;
+namespace DUna\Payments\Api;
 
 interface PostManagementInterface {
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Deuna\Payments\Plugin\Checkout;
+namespace DUna\Payments\Plugin\Checkout;
 
 use \Magento\Framework\Exception\NotFoundException;
 
@@ -19,12 +19,12 @@ class Index
     /**
      * @param \Magento\Framework\App\Action\Context $context
      * @param \Magento\Framework\UrlInterface $url
-     * @param \Deuna\Checkout\Helper\Data $helperData
+     * @param \DUna\Payments\Helper\Data $helperData
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\UrlInterface $url,
-        \Deuna\Checkout\Helper\Data $helperData
+        \DUna\Payments\Helper\Data $helperData
     ) {
         $this->resultRedirectFactory = $context->getResultRedirectFactory();
         $this->resultFactory = $context->getResultFactory();
@@ -40,7 +40,9 @@ class Index
     public function aroundExecute(\Magento\Checkout\Controller\Index\Index $subject, \Closure $proceed)
     {
         $isModuleEnable = $this->helperData->getGeneralConfig('enable');
+
         $returnDefault = $proceed();
+
         if ($isModuleEnable == '1') {
             $resultRedirect = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
             $norouteUrl = $this->url->getUrl('checkout/cart');

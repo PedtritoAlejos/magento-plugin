@@ -1,6 +1,6 @@
 <?php
 
-namespace Deuna\Checkout\Model\Api;
+namespace DUna\Payments\Model\Api;
 
 class Checkout
 {
@@ -8,7 +8,7 @@ class Checkout
     protected $checkout;
 
     public function __construct(
-        \Deuna\Checkout\Model\Checkout $checkout
+        \DUna\Payments\Model\Checkout $checkout
     )
     {
         $this->checkout = $checkout;
@@ -17,11 +17,11 @@ class Checkout
     /**
      * Gets the json.
      *
-     * @param \Deuna\Checkout\Api\Data\CheckoutInterface $parameters parameters
+     * @param \DUna\Payments\Api\Data\CheckoutInterface $parameters parameters
      *
      * @return []
      */
-    public function applycoupon(\Deuna\Checkout\Api\Data\CheckoutInterface $parameters)
+    public function applycoupon(\DUna\Payments\Api\Data\CheckoutInterface $parameters)
     {
         $data = $parameters->getData();
         if ($parameters && $parameters->getData()) {
@@ -36,11 +36,11 @@ class Checkout
     /**
      * Gets the json.
      *
-     * @param \Deuna\Checkout\Api\Data\CheckoutInterface $parameters parameters
+     * @param \DUna\Payments\Api\Data\CheckoutInterface $parameters parameters
      *
      * @return []
      */
-    public function removecoupon(\Deuna\Checkout\Api\Data\CheckoutInterface $parameters)
+    public function removecoupon(\DUna\Payments\Api\Data\CheckoutInterface $parameters)
     {
         $data = $parameters->getData();
         if ($parameters && $parameters->getData()) {

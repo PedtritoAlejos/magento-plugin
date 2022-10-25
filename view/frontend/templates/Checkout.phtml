@@ -2,13 +2,13 @@
 use Magento\Framework\Escaper;
 
 /**
- * @var $block \Deuna\Checkout\Block\Checkout
+ * @var $block \DUna\Payments\Block\Checkout
  * @var Escaper $escaper
  */
 
 $env = $block->getEnv();
 $apiKey = $block->getApiKey();
-$btnLabel = $escaper->escapeHtml(__('Proceed to Checkout'));
+$btnLabel = $escaper->escapeHtml(__('Checkout'));
 ?>
 
 <div id="deuna-checkout" data-bind="scope:'duna'">

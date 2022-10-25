@@ -1,14 +1,14 @@
 <?php
-namespace Deuna\Checkout\Model;
+namespace DUna\Payments\Model;
 
 use Magento\Framework\Webapi\Rest\Request;
 use Psr\Log\LoggerInterface;
-use Deuna\Checkout\Model\OrderTokens;
+use DUna\Payments\Model\OrderTokens;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Quote\Model\QuoteFactory as Quote;
 use Magento\Quote\Api\CartRepositoryInterface as CRI;
-use Deuna\Checkout\Helper\Data;
+use DUna\Payments\Helper\Data;
 
 class PostManagement {
 
@@ -71,27 +71,63 @@ class PostManagement {
     public function notify()
     {
         $bodyReq = $this->request->getBodyParams();
+
         $this->helper->log('debug', 'Notify New Order:', $bodyReq);
+
         $order = $bodyReq['order'];
+        $orderId = $order['order_id'];
         $payment_status = $order['payment_status'];
+        $token = $order['token'];
+        $paymentProcessor = $order['payment']['data']['processor'];
+        $metadata = $order['payment']['data']['metadata'];
+        $paymentMethod = $order['payment_method'];
+        $userComment = $order['user_instructions'];
+        $shippingAmount = $order['shipping_amount']/100;
+        $totalAmount = $order['total_amount']/100;
+        $authCode = isset($metadata['authorization_code']) ? $metadata['authorization_code'] : 'N/A';
 
         $quote = $this->quotePrepare($order);
+
         if ($quote) {
             $active = $quote->getIsActive();
+
             if ($active) {
                 $order = $this->quoteManagement->submit($quote);
+
+                if ($payment_status == 'processed') {
+                    $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING, true)
+                          ->setStatus(\Magento\Sales\Model\Order::STATE_PROCESSING);
+                    $order->setTotalPaid($totalAmount);
+                }
+
+                if(!empty($userComment)) {
+                    $order->addStatusHistoryComment(
+                        "Comentario de cliente<br>
+                        <i>{$userComment}</i>"
+                    )->setIsVisibleOnFront(true);
+                }
+
+                $order->setShippingAmount($shippingAmount);
+                $order->setBaseShippingAmount($shippingAmount);
+                $order->setGrandTotal($totalAmount);
+                $order->setBaseGrandTotal($totalAmount);
+
+                $order->addStatusHistoryComment(
+                    "Payment Processed by <strong>DEUNA Checkout</strong><br>
+                    <strong>Token:</strong> {$token}<br>
+                    <strong>OrderID:</strong> {$orderId}<br>
+                    <strong>Auth Code:</strong> {$authCode}<br>
+                    <strong>Payment Method:</strong> {$paymentMethod}<br>
+                    <strong>Processor:</strong> {$paymentProcessor}"
+                );
+
+                $order->save();
             } else {
-                $order = ['success'];
+                $order = json_encode(['result' => 'success']);
             }
         }
 
-        if ($payment_status == 'processed') {
-            $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING, true)
-                ->setStatus(\Magento\Sales\Model\Order::STATE_PROCESSING);
-            $order->save();
-        }
-
-        return json_encode($order);
+        return $order;
     }
 
     /**
@@ -102,10 +138,15 @@ class PostManagement {
     private function quotePrepare($order)
     {
         $quoteId = $order['order_id'];
+
         $email = $order['payment']['data']['customer']['email'];
+
         $quote = $this->cri->get($quoteId);
-        $quote->getPayment()->setMethod('duna_payments');
+
+        $quote->getPayment()->setMethod('deuna_payments');
+
         $quote->setCustomerEmail($email);
+
         return $quote;
     }
 
@@ -114,7 +155,10 @@ class PostManagement {
      */
     public function getToken()
     {
-        $json = ['orderToken' => $this->orderTokens->getToken()];
+        $json = [
+            'orderToken' => $this->orderTokens->getToken(),
+        ];
+
         return json_encode($json);
     }
 

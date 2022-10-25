@@ -2,6 +2,6 @@
 
 \Magento\Framework\Component\ComponentRegistrar::register(
     \Magento\Framework\Component\ComponentRegistrar::MODULE,
-    'DEUNA_Checkout',
+    'DUna_Payments',
     __DIR__
 );

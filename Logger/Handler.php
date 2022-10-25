@@ -1,6 +1,6 @@
 <?php
 
-namespace Deuna\Checkout\Logger;
+namespace DUna\Payments\Logger;
 
 use Magento\Framework\Logger\Handler\Base;
 

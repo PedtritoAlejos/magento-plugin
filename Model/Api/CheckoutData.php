@@ -1,10 +1,10 @@
 <?php
 
-namespace Deuna\Checkout\Model\Api;
+namespace DUna\Payments\Model\Api;
 
 
 class CheckoutData extends \Magento\Framework\Model\AbstractExtensibleModel implements
-    \Deuna\Checkout\Api\Data\CheckoutInterface
+    \DUna\Payments\Api\Data\CheckoutInterface
 {
     /**#@+
      * Constants

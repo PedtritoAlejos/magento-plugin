@@ -1,18 +1,6 @@
 {
     "name": "deuna/magento",
     "description": "DEUNA Checkout for Magento",
-    "type":"magento2-module",
-    "keywords": [
-        "checkout",
-        "deuna"
-    ],
-    "homepage": "https://deuna.com",
-    "require": {
-        "php": ">=7.4.0"
-    },
-    "license": "proprietary",
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "authors": [
         {
             "name": "DEUNA",
@@ -20,26 +8,27 @@
             "homepage": "http://deuna.com"
         }
     ],
-    "repositories": [
-        {
+    "require": {
+        "php": ">=7.4||<=8"
+    },
+    "type": "magento2-module",
+    "version": "1.0.0",
+    "license": "proprietary",
+    "keywords": ["checkout", "payment"],
+    "homepage": "https://deuna.com",
+    "repositories": {
+        "private-packagist": {
             "type": "composer",
             "url": "https://repo.packagist.com/deuna/"
         },
-        {
-            "packagist.org": false
-        }
-    ],
-    "extra": {
-        "branch-alias": {
-            "dev-main": "1.0.0-dev"
-        }
+        "packagist.org": false
     },
     "autoload": {
         "files": [
             "registration.php"
         ],
         "psr-4": {
-            "DEUNA\\Checkout\\": ""
+            "DUna\\Payments\\": ""
         }
     }
 }

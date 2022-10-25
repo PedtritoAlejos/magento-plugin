@@ -1,16 +1,17 @@
 <?php
 
-namespace Deuna\Checkout\Model;
+namespace DUna\Payments\Model;
 
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Webapi\Rest\Request;
-use Deuna\Checkout\Helper\Data;
+use DUna\Payments\Helper\Data;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Deuna\Checkout\Model\OrderTokens;
+use DUna\Payments\Model\OrderTokens;
 use Magento\Framework\Serialize\Serializer\Json;
-use Deuna\Checkout\Api\CheckoutInterface;
-
+use DUna\Payments\Api\CheckoutInterface;
+use Magento\Framework\Exception\StateException;
+use Magento\SalesRule\Model\Coupon;
 
 class Checkout implements CheckoutInterface
 {
@@ -49,6 +50,8 @@ class Checkout implements CheckoutInterface
 
     protected $_scopeConfig;
 
+    protected $_coupon;
+
     /**
      * @var Data
      */
@@ -78,6 +81,7 @@ class Checkout implements CheckoutInterface
         \Magento\Quote\Api\ShippingMethodManagementInterface $shippingMethodManagementInterface,
         \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        Coupon $coupon,
         Data $helper,
         JsonFactory $resultJsonFactory,
         Request $request,
@@ -91,6 +95,7 @@ class Checkout implements CheckoutInterface
         $this->shippingMethodManagementInterface = $shippingMethodManagementInterface;
         $this->productRepository = $productRepository;
         $this->_scopeConfig = $scopeConfig;
+        $this->_coupon = $coupon;
         $this->helper = $helper;
         $this->resultJsonFactory = $resultJsonFactory;
         $this->request = $request;
@@ -110,11 +115,23 @@ class Checkout implements CheckoutInterface
 
         $body = $this->request->getBodyParams();
         $couponCode = $body['coupon_code'];
-        $quote->getShippingAddress()->setCollectShippingRates(true);
-        $quote->setCouponCode($couponCode)->collectTotals();
-        $quote->save();
-        $order = $this->orderTokens->getBody($quote);
-        return $this->getJson($order);
+
+        $ruleId = $this->_coupon->loadByCode($couponCode)->getRuleId();
+
+        if(!empty($ruleId)) {
+            $quote->getShippingAddress()->setCollectShippingRates(true);
+            $quote->setCouponCode($couponCode)->collectTotals();
+            $quote->save();
+
+            $order = $this->orderTokens->getBody($quote);
+
+            return $this->getJson($order);
+        } else {
+            return $this->getJson([
+                'code' => 'EM-6001',
+                'message' => 'No se encontro cupón válido'
+            ], '406');
+        }
     }
 
     /**
@@ -273,9 +290,10 @@ class Checkout implements CheckoutInterface
      * @param $data
      * @return \Magento\Framework\Controller\Result\Json
      */
-    private function getJson($data)
+    private function getJson($data, $statusCode = 200)
     {
         $json = $this->resultJsonFactory->create();
+        $json->setStatusHeader($statusCode);
         $json->setData($data);
         return $json;
     }

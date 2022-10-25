@@ -1,13 +1,13 @@
 <?php
 
-namespace Deuna\Checkout\Controller\Set;
+namespace DUna\Payments\Controller\Set;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
-use Deuna\Checkout\Api\CheckoutInterface;
+use DUna\Payments\Api\CheckoutInterface;
 
 class Coupon extends Action implements CsrfAwareActionInterface
 {
