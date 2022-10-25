@@ -183,15 +183,6 @@ class OrderTokens
         $totals = $quote->getSubtotalWithDiscount();
         $domain = $this->storeManager->getStore()->getBaseUrl();
 
-        $objectManager = ObjectManager::getInstance();
-        $cart = $objectManager->get('\Magento\Checkout\Model\Cart');
-        $quo = $cart->getQuote();
-
-        $shippingMethod = $quo->getShippingAddress();
-
-        var_dump($shippingMethod);
-        die();
-
         $discounts = $this->getDiscounts($quote);
 
         $tax_amount = $quote->getShippingAddress()->getBaseTaxAmount();
