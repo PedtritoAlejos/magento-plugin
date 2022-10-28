@@ -16,3 +16,64 @@ Plugin de magento para checkout
    php bin/magento setup:upgrade && php bin/magento s:d:c && php bin/magento setup:static-content:deploy -f && php bin/magento cache:flush
   ```
   
+
+### Tutorial Desarrollo Local 
+
+### Configuración 
+
+Conectarse a la base de datos y ejecutar un alter a la tabla **quote**
+en 600.000
+
+```sql
+ALTER TABLE magento.quote AUTO_INCREMENT = 600000
+
+```
+
+### Luego de esto nos vamos a **nrok** para poder levantar el checkout
+
+```ssh
+ngrok http --region=us --hostname=palejos-magento-test.ngrok.io local.magento.com
+```
+
+### Ahora tenemos que actualizar en la base de datos los siguientes valores en la tabla **magento.core_config_data;**
+
+## se actualiza url para secure
+```sql
+UPDATE magento.core_config_data
+SET `scope`='default', scope_id=0, `path`='web/secure/base_url', value='https://palejos-magento-test.ngrok.io/', updated_at='2022-10-28 14:47:02'
+WHERE config_id=36;
+
+```
+
+## se actualiza url para unsecure
+```sql
+UPDATE magento.core_config_data
+SET `scope`='default', scope_id=0, `path`='web/unsecure/base_url', value='http://palejos-magento-test.ngrok.io/', updated_at='2022-10-28 14:42:54'
+WHERE config_id=7;
+
+```
+Luego ejecutamos el siguiente script para refrescar los cambios 
+
+ruta donde se ejecuta el script 
+
+```sh
+/usr/local/var/www/magento
+```
+```ssh
+sh clear.sh
+```
+
+
+clear.sh
+```bash
+#! /bin/bash
+echo "Executing Setup Upgrade..."
+php bin/magento setup:upgrade
+echo "Executing Setup Compile..."
+php bin/magento setup:di:compile
+echo "Deploying Static Content..."
+php bin/magento setup:static-content:deploy -f
+echo "Cleaning Cache..."
+php bin/magento cache:clean
+
+```
